@@ -93,36 +93,75 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 	cAssimpBasic myAssimpLoader;
 	std::string error;
 
-	//{ // Mirror
-	//	::g_pMirrorObject = new cGameObject();
-	//	::g_pMirrorObject->friendlyName = "Mirror";
-	//	::g_pMirrorObject->scale = 1.0f;
-	//	::g_pMirrorObject->position = glm::vec3( 0.0f, 1.0f, 3.0f );
-	//	::g_pMirrorObject->adjustQOrientationFormDeltaEuler( glm::vec3( glm::radians(90.0f), 0.0f, glm::radians( 90.0f ) ) );
-
-	//	cMesh theMesh;
-	//	theMesh.name = "mirror";
-	//	//assets / models / mirror_quad.ply
-	//	if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "mirror_quad.ply", theMesh ) )
-	//	{
-	//		std::cout << "Didn't load model" << std::endl;
-	//	}
-	//	// ***********************************************************************
-	//	// NOTE the TRUE so that it keeps the mesh!!!
-	//	else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
-	//	{
-	//		std::cout << "Could not load mesh into VAO" << std::endl;
-	//	}
-	//	
-	//		sMeshDrawInfo meshInfo;
-	//		meshInfo.scale = ::g_pMirrorObject->scale;
-	//		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
-	//		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
-	//		meshInfo.name = "mirror";
-	//		//meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "purple.bmp", 1.0f ) );
-	//		::g_pMirrorObject->vecMeshes.push_back( meshInfo );
-	//		::g_vecGameObjects.push_back( ::g_pMirrorObject );		// Fastest way to add
+	//{// Room model (for stencil buffer example)
+	//	::g_Room = new cGameObject();
+	//	::g_Room->friendlyName = "Room";
+	//	cPhysicalProperties physState;
+	//	physState.position = glm::vec3( 0.0f, 0.0, 0.0f );
+	//	physState.setOrientationEulerAngles( glm::vec3( 0.0, 0.0, 0.0f ) );
+	//	::g_Room->SetPhysState( physState );
+	//	sMeshDrawInfo meshInfo;
+	//	meshInfo.scale = 50.0;
+	//	//		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+	//	//		meshInfo.bDrawAsWireFrame = true;
+	//	//		meshInfo.bUseDebugColour = true;
+	//	//		meshInfo.debugDiffuseColour = glm::vec4( 0.0f, 1.0f, 1.0f, 1.0f );
+	//	meshInfo.name = "Room_2_Bigger_Triangulated.ply";
+	//	meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "GuysOnSharkUnicorn.bmp", 0.0f ) );
+	//	meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "Utah_Teapot_xyz_n_uv_Enterprise.bmp", 1.0f ) );
+	//	::g_Room->vecMeshes.push_back( meshInfo );
 	//}
+	//{// Stencil mask (matches frame for doorway in Room model)
+	//	::g_RoomMaskForStencil = new cGameObject();
+	//	::g_RoomMaskForStencil->friendlyName = "RoomDoorMask";
+	//	cPhysicalProperties physState;
+	//	physState.position = glm::vec3( 0.0f, 0.0, 0.0f );
+	//	physState.setOrientationEulerAngles( glm::vec3( 0.0f, 0.0, 0.0f ) );
+	//	::g_RoomMaskForStencil->SetPhysState( physState );
+	//	sMeshDrawInfo meshInfo;
+	//	meshInfo.scale = 50.0;
+	//	//meshInfo.bUseDebugColour = true;
+	//	//meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+	//	//meshInfo.bDrawAsWireFrame = true;
+	//	meshInfo.name = "Just_Inside_Door_Frame_for_Masking.ply";
+	//	meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "GuysOnSharkUnicorn.bmp", 1.0f ) );
+	//	meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.0f ) );
+	//	::g_RoomMaskForStencil->vecMeshes.push_back( meshInfo );
+	//}
+
+
+
+
+	{ // Mirror
+		::g_pMirrorObject = new cGameObject();
+		::g_pMirrorObject->friendlyName = "Mirror";
+		::g_pMirrorObject->scale = 1.0f;
+		::g_pMirrorObject->position = glm::vec3( 0.0f, 1.0f, 3.0f );
+		::g_pMirrorObject->adjustQOrientationFormDeltaEuler( glm::vec3( glm::radians(90.0f), 0.0f, glm::radians( 90.0f ) ) );
+
+		cMesh theMesh;
+		theMesh.name = "mirror";
+		//assets / models / mirror_quad.ply
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "mirror_quad.ply", theMesh ) )
+		{
+			std::cout << "Didn't load model" << std::endl;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
+		{
+			std::cout << "Could not load mesh into VAO" << std::endl;
+		}
+		
+			sMeshDrawInfo meshInfo;
+			meshInfo.scale = ::g_pMirrorObject->scale;
+			meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+			meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+			meshInfo.name = "mirror";
+			//meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "purple.bmp", 1.0f ) );
+			::g_pMirrorObject->vecMeshes.push_back( meshInfo );
+			::g_vecGameObjects.push_back( ::g_pMirrorObject );		// Fastest way to add
+	}
 
 	{	// Our skybox object
 		::g_pSkyBoxObject = new cGameObject();
@@ -130,27 +169,26 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 
 		cMesh theMesh;
 
-		if( !myAssimpLoader.loadModelA( "assets/models/skybox_sphere.ply", theMesh, error ) )
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWithNormals( "skybox_sphere.ply", theMesh ) )
 		{
-			std::cout << "All is lost! Forever lost!! Assimp didn't load the Model" << error << std::endl;
+			std::cout << "Didn't load model" << std::endl;
 		}
-		else
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
 		{
-			theMesh.name = "skybox_sphere";
-			if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, false ) )
-			{
-				std::cout << "Assimp loaded mesh didn't load into VAO" << std::endl;
-			}
-			sMeshDrawInfo meshInfo;
-			meshInfo.scale = 10000.0f;
-			meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
-			meshInfo.name = theMesh.name;
-			meshInfo.vecMeshCubeMaps.push_back( sTextureBindBlendInfo( "space", 1.0f ) );
-			meshInfo.bIsSkyBoxObject = true;
-			::g_pSkyBoxObject->vecMeshes.push_back( meshInfo );
-			// IS SKYBOX
-			::g_vecGameObjects.push_back( ::g_pSkyBoxObject );		// Fastest way to add			
+			std::cout << "Could not load mesh into VAO" << std::endl;
 		}
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = 10000.0f;
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+		meshInfo.name = theMesh.name;
+		meshInfo.vecMeshCubeMaps.push_back( sTextureBindBlendInfo( "space", 1.0f ) );
+		meshInfo.bIsSkyBoxObject = true;
+		::g_pSkyBoxObject->vecMeshes.push_back( meshInfo );
+		// IS SKYBOX
+		::g_vecGameObjects.push_back( ::g_pSkyBoxObject );		// Fastest way to add
 	}
 
 	{ // The Rover

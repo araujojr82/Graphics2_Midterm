@@ -126,15 +126,15 @@ extern bool g_outline;
 		::g_theQuestionNumber = 6;
 	}
 
-	if( key == GLFW_KEY_A && action == GLFW_PRESS )
-	{
-		::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, 0.1f, 0.0f ) );
-	}
+	//if( key == GLFW_KEY_A && action == GLFW_PRESS )
+	//{
+	//	::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, 0.1f, 0.0f ) );
+	//}
 
-	if( key == GLFW_KEY_D && action == GLFW_PRESS )
-	{
-		::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, -0.1f, 0.0f ) );
-	}
+	//if( key == GLFW_KEY_D && action == GLFW_PRESS )
+	//{
+	//	::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, -0.1f, 0.0f ) );
+	//}
 	
 
 	return;

@@ -13,11 +13,13 @@
 
 // HACK
 #include "cFBO.h"
+// Here, the scene is rendered in 3 passes:
+// 1. Render geometry to G buffer
+// 2. Perform deferred pass, rendering to Deferred buffer
+// 3. Then post-pass ("2nd pass" to the scree)
+//    Copying from the Pass2_Deferred buffer to the final screen
 extern cFBO g_FBO_Pass1_G_Buffer;
-
-extern bool g_bIsSecondPass;
-
-extern GLint g_renderID;
+extern cFBO g_FBO_Pass2_Deferred;
 
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
@@ -52,14 +54,29 @@ void window_size_callback( GLFWwindow* window, int width, int height )
 		std::string error;
 		if( !::g_FBO_Pass1_G_Buffer.reset( width, height, error ) )
 		{
-			std::cout << "In window_size_callback(), the FBO.reset() call returned an error:" << std::endl;
+			std::cout << "In window_size_callback(), the g_FBO_Pass1_G_Buffer.reset() call returned an error:" << std::endl;
 			std::cout << "\t" << error << std::endl;
 		}
 		else
 		{
-			std::cout << "Offscreen FBO now: " << width << " x " << height << std::endl;
+			std::cout << "Offscreen g_FBO_Pass1_G_Buffer now: " << width << " x " << height << std::endl;
 		}
-	}
+	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
+
+	if( ( ::g_FBO_Pass2_Deferred.width != width ) || ( ::g_FBO_Pass2_Deferred.height != height ) )
+	{
+		// Window size has changed, so resize the offscreen frame buffer object
+		std::string error;
+		if( !::g_FBO_Pass2_Deferred.reset( width, height, error ) )
+		{
+			std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
+			std::cout << "\t" << error << std::endl;
+		}
+		else
+		{
+			std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
+		}
+	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
 
 	return;
 }
@@ -76,6 +93,11 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 	ratio = width / ( float )height;
 	glViewport( 0, 0, width, height );
 
+	//		// Clear colour AND depth buffer
+	//		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	//glEnable(GL_DEPTH_TEST);
+
+	//        glUseProgram(program);
 	::g_pShaderManager->useShaderProgram( "mySexyShader" );
 	GLint curShaderID = ::g_pShaderManager->getIDFromFriendlyName( "mySexyShader" );
 
@@ -84,18 +106,21 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 	::g_pLightManager->CopyLightInformationToCurrentShader();
 
 	// Projection and view don't change per scene (maybe)
-	matProjection = glm::perspective( glm::radians( ::g_pTheMouseCamera->Zoom ), //was 0.6f,	// FOV
+	matProjection = glm::perspective( 0.6f,			// FOV
 									  ratio,		// Aspect ratio
 									  1.0f,		// Near (as big as possible)
 									  10000.0f );	// Far (as small as possible)
 
 
-	// View or "camera" matrix
+													// View or "camera" matrix
 	glm::mat4 matView = glm::mat4( 1.0f );	// was "v"
 
-	// Now the veiw matrix is taken right from the camera class
+											// Now the veiw matrix is taken right from the camera class
 	matView = ::g_pTheMouseCamera->GetViewMatrix();
-	
+	//matView = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
+	//					   g_cameraTarget_XYZ,		// "At" or "target" 
+	//					   glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
+
 	GLint uniLoc_mView = glGetUniformLocation( curShaderID, "mView" );
 	GLint uniLoc_mProjection = glGetUniformLocation( curShaderID, "mProjection" );
 
@@ -103,6 +128,36 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 		( const GLfloat* )glm::value_ptr( matView ) );
 	glUniformMatrix4fv( uniLoc_mProjection, 1, GL_FALSE,
 		( const GLfloat* )glm::value_ptr( matProjection ) );
+
+	// Set ALL texture units and binding for ENTIRE SCENE (is faster)
+	//{
+	//	// 0 
+	//	glActiveTexture(GL_TEXTURE0);
+	//	glBindTexture(GL_TEXTURE_2D,
+	//		::g_pTextureManager->getTextureIDFromName("Utah_Teapot_xyz_n_uv_Enterprise.bmp"));
+	//		//::g_pTextureManager->getTextureIDFromName(pTheGO->textureNames[0]));
+	//	// 1
+	//	glActiveTexture(GL_TEXTURE1);
+	//	glBindTexture(GL_TEXTURE_2D,
+	//		::g_pTextureManager->getTextureIDFromName("GuysOnSharkUnicorn.bmp"));
+	//		//::g_pTextureManager->getTextureIDFromName(pTheGO->textureNames[1]));
+	//	// 2..  and so on... 
+
+	//	// Set sampler in the shader
+	//	// NOTE: You shouldn't be doing this during the draw call...
+	//	GLint curShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
+	//	GLint textSampler00_ID = glGetUniformLocation(curShaderID, "texSamp2D00");
+	//	GLint textSampler01_ID = glGetUniformLocation(curShaderID, "texSamp2D01");
+	//	// And so on (up to 10, or whatever number of textures)... 
+
+	//	GLint textBlend00_ID = glGetUniformLocation(curShaderID, "texBlend00");
+	//	GLint textBlend01_ID = glGetUniformLocation(curShaderID, "texBlend01");
+
+	//	// This connects the texture sampler to the texture units... 
+	//	glUniform1i(textSampler00_ID, 0);		// Enterprise
+	//	glUniform1i(textSampler01_ID, 1);		// GuysOnSharkUnicorn
+	//}
+
 
 	// Enable blend ("alpha") transparency for the scene
 	// NOTE: You "should" turn this OFF, then draw all NON-Transparent objects
@@ -115,28 +170,16 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 
-
 	// Draw the scene
-	//unsigned int sizeOfVector = ( unsigned int )::g_vecGameObjects.size();	//*****//
+	//unsigned int sizeOfVector = (unsigned int)::g_vecGameObjects.size();	//*****//
 	unsigned int sizeOfVector = ( unsigned int )vec_pGOs.size();	//*****//
 	for( int index = 0; index != sizeOfVector; index++ )
 	{
-		cGameObject* pTheGO = ::g_vecGameObjects[index];
-
-		// Avoid GO leaving the "game area"
-		//checkBoundaries( pTheGO );
+		//cGameObject* pTheGO = ::g_vecGameObjects[index];
+		cGameObject* pTheGO = vec_pGOs[index];
 
 		// This is the top level vector, so they are all "parents" 
 		DrawObject( pTheGO, NULL );
-
-		//if( pTheGO->type == eTypeOfGO::CHARACTER )
-		//{
-		//	if( pTheGO->team == eTeam::ENEMY )
-		//		drawTagCircle( pTheGO );
-		//	else
-		//		::g_pDebugRenderer->addCircle( pTheGO->position, 0.25f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
-		//	//drawCapsule( pTheGO->position );
-		//}
 
 	}//for ( int index = 0...
 
@@ -144,6 +187,8 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 
 	return;
 }
+
+
 
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
@@ -153,6 +198,7 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 	{	// Shouldn't happen, but if GO pointer is invlaid, return
 		return;
 	}
+
 	//// Is there a game object? 
 	//if( !pTheGO->bIsVisible )	//if ( ::g_GameObjects[index] == 0 )
 	//{	// Nothing to draw
@@ -171,6 +217,7 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 	{
 		DrawMesh( pTheGO->vecMeshes[meshIndex], pTheGO );
 	}
+
 
 	return;
 }
@@ -214,12 +261,33 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 							theMesh.offset + pTheGO->getPosition() );
 	mModel = mModel * trans;
 
+	//// Euler orientation stuff, which is so "Fall 2017"
+	//// ***************************
+	//// POST-Rotation
+	//glm::mat4 matPostRotZ = glm::mat4x4(1.0f);
+	//matPostRotZ = glm::rotate( matPostRotZ, pTheGO->orientation2.z, 
+	//							glm::vec3(0.0f, 0.0f, 1.0f) );
+	//mModel = mModel * matPostRotZ;
+	//
+	//glm::mat4 matPostRotY = glm::mat4x4(1.0f);
+	//matPostRotY = glm::rotate( matPostRotY, pTheGO->orientation2.y, 
+	//							glm::vec3(0.0f, 1.0f, 0.0f) );
+	//mModel = mModel * matPostRotY;
+	//
+	//glm::mat4 matPostRotX = glm::mat4x4(1.0f);
+	//matPostRotX = glm::rotate( matPostRotX, pTheGO->orientation2.x, 
+	//							glm::vec3(1.0f, 0.0f, 0.0f) );
+	//mModel = mModel * matPostRotX;
+	//// ***************************
+
 	// Now with quaternion rotation
 	// This is combined with the original game object
 	// (i.e. if the game object is rotated, then the mesh is rotated relative to the game object)
 	glm::mat4 postRotQuat = glm::mat4( pTheGO->qOrientation );
-	//glm::mat4 postRotQuat = glm::mat4( pTheGO->getFinalMeshQOrientation( theMesh.getQOrientation() ) );
 	mModel = mModel * postRotQuat;
+
+	//	mModel = mModel * trans * postRotQuat;
+
 
 	// The scale is relative to the original model
 	glm::mat4 matScale = glm::mat4x4( 1.0f );
@@ -228,6 +296,37 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 									  theMesh.scale,
 									  theMesh.scale ) );
 	mModel = mModel * matScale;
+
+
+	//	//mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+	////			p = glm::ortho( -1.0f, 1.0f, -1.0f, 1.0f );
+	//	p = glm::perspective( 0.6f,			// FOV
+	//							ratio,		// Aspect ratio
+	//							0.1f,			// Near (as big as possible)
+	//							1000.0f );	// Far (as small as possible)
+	//
+	//	// View or "camera" matrix
+	//	glm::mat4 v = glm::mat4(1.0f);	// identity
+	//
+	//	//glm::vec3 cameraXYZ = glm::vec3( 0.0f, 0.0f, 5.0f );	// 5 units "down" z
+	//	v = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
+	//						g_cameraTarget_XYZ,		// "At" or "target" 
+	//						glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
+	//
+	//
+	////        glUseProgram(program);
+	//	::g_pShaderManager->useShaderProgram( "mySexyShader" );
+	//	GLint shaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
+
+	//			mvp = p * v * m;			// This way (sort of backwards)
+	//			glUniformMatrix4fv(mvp_location, 1, GL_FALSE, 
+	//							   (const GLfloat*) glm::value_ptr(mvp) );
+
+	// All of these shouldn't be in the render loop, as they 
+	//	aren't changing if we are using the same shader.
+	//GLint mModel_locID = glGetUniformLocation( shaderID, "mModel" );
+	//GLint mView_locID = glGetUniformLocation( shaderID, "mView" );
+	//GLint mProjection = glGetUniformLocation( shaderID, "mProjection" );
 
 	GLint curShaderProgID = ::g_pShaderManager->getIDFromFriendlyName( "mySexyShader" );
 
@@ -240,10 +339,18 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	glUniformMatrix4fv( uniLoc_mWorldInvTrans, 1, GL_FALSE,
 		( const GLfloat* )glm::value_ptr( mWorldInTranpose ) );
 
+
+	//GLint myLight_00_diffuse = glGetUniformLocation( shaderID, "myLight[0].diffuse" );
+	//GLint myLight_01_diffuse = glGetUniformLocation( shaderID, "myLight[1].diffuse" );
+	//GLint myLight_02_diffuse = glGetUniformLocation( shaderID, "myLight[2].diffuse" );
+	// 
+	//glUniform4f( myLight_00_diffuse, 1.0f, 1.0f, 1.0f, 1.0f );
+
+	//			GLint diffuseColour_loc = glGetUniformLocation( shaderID, "diffuseColour" );
+
 	// Other uniforms:
 	GLint uniLoc_eyePosition = glGetUniformLocation( curShaderProgID, "eyePosition" );
 	glm::vec3 eye = ::g_pTheMouseCamera->Position;
-	//glm::vec3 eye = ::g_pTheCamera->getEyePosition();
 	glUniform3f( uniLoc_eyePosition, eye.x, eye.y, eye.z );
 
 
@@ -297,7 +404,6 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	//	uniform bool bIsHeightMap;
 	GLint texHeightMap_UniLoc = glGetUniformLocation( curShaderProgID, "texHeightMap" );
 	GLint bIsHeightMap_UniLoc = glGetUniformLocation( curShaderProgID, "bIsHeightMap" );
-
 
 	//	// HACK: Check for the mesh name
 	//	if ( theMesh.name == "MeshLabTerrain_xyz_n_uv" )
@@ -411,33 +517,50 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	glUniform1f( coefficientRefract_UniLoc, theMesh.coefficientRefract );
 	// And more environment things
 
+	GLint bUseTextureAsDiffuse_UniLoc = glGetUniformLocation( curShaderProgID, "bUseTextureAsDiffuse" );
 
-	if( !::g_bIsSecondPass )
+	if( theMesh.bUseDebugColour )
 	{
-		// ***************************************************
-		//    ___  _    _                      _  __  __           _     
-		//   / __|| |__(_) _ _   _ _   ___  __| ||  \/  | ___  ___| |_   
-		//   \__ \| / /| || ' \ | ' \ / -_)/ _` || |\/| |/ -_)(_-<| ' \  
-		//   |___/|_\_\|_||_||_||_||_|\___|\__,_||_|  |_|\___|/__/|_||_| 
-		//                                                               
-		GLint UniLoc_IsSkinnedMesh = glGetUniformLocation( curShaderProgID, "bIsASkinnedMesh" );
-
-		if( pTheGO->pSimpleSkinnedMesh )
-		{
-			// Calculate the pose and load the skinned mesh stuff into the shader, too
-			GLint UniLoc_NumBonesUsed = glGetUniformLocation( curShaderProgID, "numBonesUsed" );
-			GLint UniLoc_BoneIDArray = glGetUniformLocation( curShaderProgID, "bones" );
-			CalculateSkinnedMeshBonesAndLoad( theMesh, pTheGO, UniLoc_NumBonesUsed, UniLoc_BoneIDArray );
-
-			glUniform1f( UniLoc_IsSkinnedMesh, GL_TRUE );
-		}
-		else
-		{
-			glUniform1f( UniLoc_IsSkinnedMesh, GL_FALSE );
-		}
-
-		// ***************************************************
+		GLint materialDiffuse_UniLoc = glGetUniformLocation( curShaderProgID, "materialDiffuse" );
+		glUniform4f( materialDiffuse_UniLoc,
+					 theMesh.debugDiffuseColour.x,
+					 theMesh.debugDiffuseColour.y,
+					 theMesh.debugDiffuseColour.z,
+					 theMesh.debugDiffuseColour.w );
+		glUniform1f( bUseTextureAsDiffuse_UniLoc, GL_FALSE );
 	}
+	else
+	{
+		glUniform1f( bUseTextureAsDiffuse_UniLoc, GL_TRUE );
+	}
+
+
+
+
+	// ***************************************************
+	//    ___  _    _                      _  __  __           _     
+	//   / __|| |__(_) _ _   _ _   ___  __| ||  \/  | ___  ___| |_   
+	//   \__ \| / /| || ' \ | ' \ / -_)/ _` || |\/| |/ -_)(_-<| ' \  
+	//   |___/|_\_\|_||_||_||_||_|\___|\__,_||_|  |_|\___|/__/|_||_| 
+	//                                                               
+	GLint UniLoc_IsSkinnedMesh = glGetUniformLocation( curShaderProgID, "bIsASkinnedMesh" );
+
+	if( pTheGO->pSimpleSkinnedMesh )
+	{
+		// Calculate the pose and load the skinned mesh stuff into the shader, too
+		GLint UniLoc_NumBonesUsed = glGetUniformLocation( curShaderProgID, "numBonesUsed" );
+		GLint UniLoc_BoneIDArray = glGetUniformLocation( curShaderProgID, "bones" );
+		CalculateSkinnedMeshBonesAndLoad( theMesh, pTheGO, UniLoc_NumBonesUsed, UniLoc_BoneIDArray );
+
+		glUniform1f( UniLoc_IsSkinnedMesh, GL_TRUE );
+	}
+	else
+	{
+		glUniform1f( UniLoc_IsSkinnedMesh, GL_FALSE );
+	}
+
+	// ***************************************************
+
 
 	// EDNOF: Reflection and refraction shader uniforms
 
@@ -513,9 +636,9 @@ namespace QnDTexureSamplerUtility
 			texBlend07_LocID = glGetUniformLocation( shaderID, "texBlend07" );
 
 			texSampCube00_LocID = glGetUniformLocation( shaderID, "texSampCube00" );
-			texSampCube01_LocID = glGetUniformLocation( shaderID, "texSampCube01" );
-			texSampCube02_LocID = glGetUniformLocation( shaderID, "texSampCube02" );
-			texSampCube03_LocID = glGetUniformLocation( shaderID, "texSampCube03" );
+			texSampCube01_LocID = glGetUniformLocation( shaderID, "texSampCube00" );
+			texSampCube02_LocID = glGetUniformLocation( shaderID, "texSampCube00" );
+			texSampCube03_LocID = glGetUniformLocation( shaderID, "texSampCube00" );
 
 			texCubeBlend00_LocID = glGetUniformLocation( shaderID, "texCubeBlend00" );
 			texCubeBlend01_LocID = glGetUniformLocation( shaderID, "texCubeBlend01" );
@@ -643,132 +766,49 @@ namespace QnDTexureSamplerUtility
 	void SetSamplersForMeshTextures( sMeshDrawInfo &meshDrawInfo,
 									 std::map<std::string /*textureName*/, CTexUnitInfoBrief> &mapTexAndUnitInfo )
 	{
-
-		if( meshDrawInfo.name == "mirror" )
+		// 2D textures first
+		int numTextures = ( int )meshDrawInfo.vecMehs2DTextures.size();
+		for( int samplerIndex = 0; samplerIndex != numTextures; samplerIndex++ )
 		{
-			// HACK
-			glUniform1i( texSamp2D00_LocID, 11 ); //g_renderID );
-			glUniform1f( texBlend00_LocID, 1.0 );
-		}
-
-		else
-		{
-
-			// 2D textures first
-			int numTextures = ( int )meshDrawInfo.vecMehs2DTextures.size();
-			for( int samplerIndex = 0; samplerIndex != numTextures; samplerIndex++ )
-			{
-				// What texture unit is this texture set to?
-				std::map<std::string, CTexUnitInfoBrief>::iterator itTextUnitInfo
-					= mapTexAndUnitInfo.find( meshDrawInfo.vecMehs2DTextures[samplerIndex].name );
-				// Have we mapped that one?
-				if( itTextUnitInfo != mapTexAndUnitInfo.end() )
-				{	// Yes, so assign it
-					set2DSamplerAndBlenderByIndex( samplerIndex,
-												   meshDrawInfo.vecMehs2DTextures[samplerIndex].blendRatio,
-												   itTextUnitInfo->second.texUnitNumOffsetBy_GL_TEXTURE0 );
-					// Set blend function, too
-				}
-			}// 2D textures
-
+			// What texture unit is this texture set to?
+			std::map<std::string, CTexUnitInfoBrief>::iterator itTextUnitInfo
+				= mapTexAndUnitInfo.find( meshDrawInfo.vecMehs2DTextures[samplerIndex].name );
+			// Have we mapped that one?
+			if( itTextUnitInfo != mapTexAndUnitInfo.end() )
+			{	// Yes, so assign it
+				set2DSamplerAndBlenderByIndex( samplerIndex,
+											   meshDrawInfo.vecMehs2DTextures[samplerIndex].blendRatio,
+											   itTextUnitInfo->second.texUnitNumOffsetBy_GL_TEXTURE0 );
+				// Set blend function, too
+			}
+		}// 2D textures
 
 		 // Now cube maps
-			numTextures = ( int )meshDrawInfo.vecMeshCubeMaps.size();
-			for( int samplerIndex = 0; samplerIndex != numTextures; samplerIndex++ )
-			{
-				// What texture unit is this texture set to?
-				std::map<std::string, CTexUnitInfoBrief>::iterator itTextUnitInfo
-					= mapTexAndUnitInfo.find( meshDrawInfo.vecMeshCubeMaps[samplerIndex].name );
-				// Have we mapped that one?
-				if( itTextUnitInfo != mapTexAndUnitInfo.end() )
-				{	// Yes, so assign it
-					setCubeSamplerAndBlenderByIndex( samplerIndex,
-													 meshDrawInfo.vecMeshCubeMaps[samplerIndex].blendRatio,
-													 itTextUnitInfo->second.texUnitNumOffsetBy_GL_TEXTURE0 );
-				}
-			}// cube maps
+		numTextures = ( int )meshDrawInfo.vecMeshCubeMaps.size();
+		for( int samplerIndex = 0; samplerIndex != numTextures; samplerIndex++ )
+		{
+			// What texture unit is this texture set to?
+			std::map<std::string, CTexUnitInfoBrief>::iterator itTextUnitInfo
+				= mapTexAndUnitInfo.find( meshDrawInfo.vecMeshCubeMaps[samplerIndex].name );
+			// Have we mapped that one?
+			if( itTextUnitInfo != mapTexAndUnitInfo.end() )
+			{	// Yes, so assign it
+				setCubeSamplerAndBlenderByIndex( samplerIndex,
+												 meshDrawInfo.vecMeshCubeMaps[samplerIndex].blendRatio,
+												 itTextUnitInfo->second.texUnitNumOffsetBy_GL_TEXTURE0 );
+			}
+		}// cube maps
 
-		}
+
 
 	}//void SetSamplersForMeshTextures()
 
 };//namespace QnDTexureSamplerUtility
 
-//****************************************************************************************
-//    ___  _    _                      _  __  __           _     
-//   / __|| |__(_) _ _   _ _   ___  __| ||  \/  | ___  ___| |_   
-//   \__ \| / /| || ' \ | ' \ / -_)/ _` || |\/| |/ -_)(_-<| ' \  
-//   |___/|_\_\|_||_||_||_||_|\___|\__,_||_|  |_|\___|/__/|_||_| 
-//                                                               
 void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pTheGO,
 									   unsigned int UniformLoc_numBonesUsed,
 									   unsigned int UniformLoc_bonesArray )
 {
 
-	std::string animationToPlay = "";
-	float curFrameTime = 0.0;
-
-	// See what animation should be playing... 
-	cAnimationState* pAniState = pTheGO->pAniState;
-
-	if( pAniState->currentAnimation.name != "" &&
-		pAniState->currentAnimation.name != "none" &&
-		!pAniState->currentAnimation.isFinished )
-	{
-		pAniState->currentAnimation.IncrementTime();
-
-		animationToPlay = pAniState->currentAnimation.name;
-		curFrameTime = pAniState->currentAnimation.currentTime;
-
-		//if( pTheGO->behaviour == eBehaviour::UNAVAIABLE ) // HACK
-		//{
-		//	std::cout << pAniState->currentAnimation.name << ": " <<
-		//		pAniState->currentAnimation.currentTime << std::endl;
-		//}
-	}
-	else
-	{	// Use the default animation.
-		pAniState->defaultAnimation.IncrementTime();
-
-		animationToPlay = pAniState->defaultAnimation.name;
-		curFrameTime = pAniState->defaultAnimation.currentTime;
-
-		//if( pTheGO->behaviour == eBehaviour::UNAVAIABLE ) // HACK
-		//{
-		//	std::cout << pAniState->defaultAnimation.name << ": " <<
-		//		pAniState->defaultAnimation.currentTime << std::endl;
-		//}
-
-	}//if ( pAniState->vecAnimationQueue.empty()
-
-
-
-	// Set up the animation pose:
-	std::vector< glm::mat4x4 > vecFinalTransformation;
-	std::vector< glm::mat4x4 > vecObjectBoneTransformation;
-	std::vector< glm::mat4x4 > vecOffsets;
-	// Final transformation is the bone transformation + boneOffsetPerVertex
-	// ObjectBoneTransformation (or "Global") is the final location of the bones
-	// vecOffsets is the relative offsets of the bones from each other
-
-
-	pTheGO->pSimpleSkinnedMesh->BoneTransform(
-		curFrameTime,
-		animationToPlay,		//**NEW**
-		vecFinalTransformation,		// Final bone transforms for mesh
-		vecObjectBoneTransformation,  // final location of bones
-		vecOffsets );                 // local offset for each bone
-
-	unsigned int numberOfBonesUsed = static_cast< unsigned int >( vecFinalTransformation.size() );
-	glUniform1i( UniformLoc_numBonesUsed, numberOfBonesUsed );
-
-	glm::mat4x4* pBoneMatrixArray = &( vecFinalTransformation[0] );
-	// UniformLoc_bonesArray is the getUniformLoc of "bones[0]" from
-	//	uniform mat4 bones[MAXNUMBEROFBONES] 
-	// in the shader
-	glUniformMatrix4fv( UniformLoc_bonesArray, numberOfBonesUsed, GL_FALSE,
-		( const GLfloat* )glm::value_ptr( *pBoneMatrixArray ) );
-
-	//****************************************************************************************
 	return;
 }

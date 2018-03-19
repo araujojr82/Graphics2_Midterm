@@ -435,80 +435,7 @@ int main( void )
 		double deltaTime = curTime - lastTimeStep;
 		lastTimeStep = curTime;
 
-		// #################################################################
-
-		//// In this pass, we render all the geometry to the "G buffer"
-		//// The lighting is NOT done here. 
-		//// 
-		//::g_pShaderManager->useShaderProgram( "mySexyShader" );
-
-		//// Direct everything to the FBO
-		//GLint renderPassNumber_LocID = glGetUniformLocation( sexyShaderID, "renderPassNumber" );
-		//glUniform1i( renderPassNumber_LocID, RENDER_PASS_0_G_BUFFER_PASS );
-
-		//glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass1_G_Buffer.ID );
-		//// Clear colour AND depth buffer
-		//g_FBO_Pass1_G_Buffer.clearBuffers();
-
-		//RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
-		////    ___         __                         _   ___                _             ___               
-		////   |   \  ___  / _| ___  _ _  _ _  ___  __| | | _ \ ___  _ _   __| | ___  _ _  | _ \ __ _  ___ ___
-		////   | |) |/ -_)|  _|/ -_)| '_|| '_|/ -_)/ _` | |   // -_)| ' \ / _` |/ -_)| '_| |  _// _` |(_-<(_-<
-		////   |___/ \___||_|  \___||_|  |_|  \___|\__,_| |_|_\\___||_||_|\__,_|\___||_|   |_|  \__,_|/__//__/
-		////   
-		//// In this pass, we READ from the G-buffer, and calculate the lighting. 
-		//// In this example, we are writing to another FBO, now. 
-		//// 
-		//// Render it again, but point the the FBO texture... 
-		//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-		//g_FBO_Pass2_Deferred.clearBuffers();
-		//
-		//::g_pShaderManager->useShaderProgram( "mySexyShader" );
-
-		//glUniform1i( renderPassNumber_LocID, RENDER_PASS_1_DEFERRED_RENDER_PASS );
-		//
-		//GLint texFBOColour2DTextureUnitID = 10;
-		//GLint texFBOColour2DLocID = glGetUniformLocation( sexyShaderID, "texFBOColour2D" );
-		//GLint texFBONormal2DTextureUnitID = 11;
-		//GLint texFBONormal2DLocID = glGetUniformLocation( sexyShaderID, "texFBONormal2D" );
-		//GLint texFBOWorldPosition2DTextureUnitID = 12;
-		//GLint texFBOWorldPosition2DLocID = glGetUniformLocation( sexyShaderID, "texFBOVertexWorldPos2D" );
-
-		//// Pick a texture unit... 
-		//glActiveTexture( GL_TEXTURE0 + texFBOColour2DTextureUnitID );
-		//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.colourTexture_0_ID );
-		//glUniform1i( texFBOColour2DLocID, texFBOColour2DTextureUnitID );
-
-		//glActiveTexture( GL_TEXTURE0 + texFBONormal2DTextureUnitID );
-		//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.normalTexture_1_ID );
-		//glUniform1i( texFBONormal2DLocID, texFBONormal2DTextureUnitID );
-
-		//glActiveTexture( GL_TEXTURE0 + texFBOWorldPosition2DTextureUnitID );
-		//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.vertexWorldPos_2_ID );
-		//glUniform1i( texFBOWorldPosition2DLocID, texFBOWorldPosition2DTextureUnitID );
-
-		//// Set the sampler in the shader to the same texture unit (20)
-
-		//glfwGetFramebufferSize( ::g_pGLFWWindow, &width, &height );
-
-		//GLint screenWidthLocID = glGetUniformLocation( sexyShaderID, "screenWidth" );
-		//GLint screenHeightLocID = glGetUniformLocation( sexyShaderID, "screenHeight" );
-		//glUniform1f( screenWidthLocID, ( float )width );
-		//glUniform1f( screenHeightLocID, ( float )height );
-	
-
-		//std::vector< cGameObject* >  vecCopy2ndPass;
-		//// Push back a SINGLE quad or GIANT triangle that fills the entire screen
-		//// Here we will use the skybox (as it fills the entire screen)
-		//vecCopy2ndPass.push_back( ::g_pSkyBoxObject );
-		////vecCopy2ndPass.push_back( ::g_vecGameObjects[1] );
-		//RenderScene( vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
-
-		// #################################################################
-
-
-
-		////THIS IS MY OLD CODE:
+		::g_pSkyBoxObject->position = ::g_pTheMouseCamera->Position;
 
 		::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
@@ -527,6 +454,7 @@ int main( void )
 		}
 		else
 		{	// Using the Deferred Renderer
+			//::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
 			// Direct everything to the FBO		
 			::g_bIsSecondPass = false;
@@ -534,7 +462,7 @@ int main( void )
 			GLint renderPassNumber_LocID = glGetUniformLocation( sexyShaderID, "renderPassNumber" );
 			glUniform1i( renderPassNumber_LocID, RENDER_PASS_0_G_BUFFER_PASS );
 
-			glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass1_G_Buffer.ID );
+			glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass1_G_Buffer.ID );			
 
 			// Clear colour AND depth buffer
 			g_FBO_Pass1_G_Buffer.clearBuffers();
@@ -552,7 +480,7 @@ int main( void )
 			glClearBufferfv( GL_COLOR, 0, &zero );			 //clearBuffers();
 			glClearBufferfv( GL_DEPTH, 0, &one );			 //clearBuffers();
 
-															 //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+			//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 			::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
@@ -590,6 +518,50 @@ int main( void )
 			// Push back a SINGLE quad or GIANT triangle that fills the entire screen
 			vecCopy2ndPass.push_back( ::g_pSkyBoxObject );
 			RenderScene( vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
+
+			//// -----------> The Third Pass
+			////glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass2_Deferred.ID );
+			////g_FBO_Pass2_Deferred.clearBuffers();
+			//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+			//
+			//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+			//glUniform1i( renderPassNumber_LocID, RENDER_PASS_1_DEFERRED_RENDER_PASS );
+
+			//texFBOColour2DTextureUnitID = 20;
+			//texFBOColour2DLocID = glGetUniformLocation( sexyShaderID, "texFBOColour2D" );
+			//texFBONormal2DTextureUnitID = 21;
+			//texFBONormal2DLocID = glGetUniformLocation( sexyShaderID, "texFBONormal2D" );
+			//texFBOWorldPosition2DTextureUnitID = 22;
+			//texFBOWorldPosition2DLocID = glGetUniformLocation( sexyShaderID, "texFBOVertexWorldPos2D" );
+
+			//// Pick a texture unit... 
+			//glActiveTexture( GL_TEXTURE0 + texFBOColour2DTextureUnitID );
+			//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass2_Deferred.colourTexture_0_ID );
+			//glUniform1i( texFBOColour2DLocID, texFBOColour2DTextureUnitID );
+
+			//glActiveTexture( GL_TEXTURE0 + texFBONormal2DTextureUnitID );
+			//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass2_Deferred.normalTexture_1_ID );
+			//glUniform1i( texFBONormal2DLocID, texFBONormal2DTextureUnitID );
+
+			//glActiveTexture( GL_TEXTURE0 + texFBOWorldPosition2DTextureUnitID );
+			//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass2_Deferred.vertexWorldPos_2_ID );
+			//glUniform1i( texFBOWorldPosition2DLocID, texFBOWorldPosition2DTextureUnitID );
+
+			//// Set the sampler in the shader to the same texture unit (20)
+			//glfwGetFramebufferSize( ::g_pGLFWWindow, &width, &height );
+
+			//screenWidthLocID = glGetUniformLocation( sexyShaderID, "screenWidth" );
+			//screenHeightLocID = glGetUniformLocation( sexyShaderID, "screenHeight" );
+			//glUniform1f( screenWidthLocID, ( float )width );
+			//glUniform1f( screenHeightLocID, ( float )height );
+
+			//std::vector< cGameObject* >  vecCopy3rdPass;
+			//// Push back a SINGLE quad or GIANT triangle that fills the entire screen
+			//// The Skybox works as well...
+			//vecCopy3rdPass.push_back( ::g_pSkyBoxObject );
+			//RenderScene( vecCopy3rdPass, ::g_pGLFWWindow, deltaTime );
+
 		}
 
 
@@ -637,7 +609,7 @@ int main( void )
 		//::g_pSkyBoxObject->GetPhysState( skyBoxPP );
 		//skyBoxPP.position = ::g_pTheCamera->getEyePosition();
 		//::g_pSkyBoxObject->SetPhysState( skyBoxPP );
-		::g_pSkyBoxObject->position = ::g_pTheMouseCamera->Position;
+//		::g_pSkyBoxObject->position = ::g_pTheMouseCamera->Position;
 
 
 		std::stringstream ssTitle;
