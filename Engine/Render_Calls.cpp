@@ -245,6 +245,11 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 		return;
 	}
 
+	if( theMesh.name == "mirror" )
+	{
+		int debugger = 1;
+	}
+
 	sVAOInfo VAODrawInfo;
 	if( ::g_pVAOManager->lookupVAOFromName( theMesh.name, VAODrawInfo ) == false )
 	{	// Didn't find mesh

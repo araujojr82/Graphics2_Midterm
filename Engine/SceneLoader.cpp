@@ -135,14 +135,16 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 	{ // Mirror
 		::g_pMirrorObject = new cGameObject();
 		::g_pMirrorObject->friendlyName = "Mirror";
-		::g_pMirrorObject->scale = 1.0f;
-		::g_pMirrorObject->position = glm::vec3( 0.0f, 1.0f, 3.0f );
-		::g_pMirrorObject->adjustQOrientationFormDeltaEuler( glm::vec3( glm::radians(90.0f), 0.0f, glm::radians( 90.0f ) ) );
+		::g_pMirrorObject->scale = 5.0f;
+		//::g_pMirrorObject->position = glm::vec3( 0.0f, 1.0f, 3.0f );
+		::g_pMirrorObject->position = glm::vec3( 10.0f, -6, -40.0f );	// NEXT TO THE ROVER
+		//::g_pMirrorObject->adjustQOrientationFormDeltaEuler( glm::vec3( glm::radians(90.0f), 0.0f, glm::radians( 90.0f ) ) );
 
 		cMesh theMesh;
 		theMesh.name = "mirror";
-		//assets / models / mirror_quad.ply
-		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "mirror_quad.ply", theMesh ) )
+
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "mirror.ply", theMesh ) )
+		//if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly.ply", theMesh ) )
 		{
 			std::cout << "Didn't load model" << std::endl;
 		}
@@ -158,9 +160,9 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 			meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
 			meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
 			meshInfo.name = "mirror";
-			//meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "purple.bmp", 1.0f ) );
+			meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
 			::g_pMirrorObject->vecMeshes.push_back( meshInfo );
-			::g_vecGameObjects.push_back( ::g_pMirrorObject );		// Fastest way to add
+			//::g_vecGameObjects.push_back( ::g_pMirrorObject );		// Fastest way to add
 	}
 
 	{	// Our skybox object
