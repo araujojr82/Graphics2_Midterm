@@ -43,8 +43,8 @@
 //#include "cSteeringManager.h"
 
 #include "cFBO.h" 
-cFBO g_myFBO;
-cFBO g_myMirrorFBO;
+cFBO g_FBO_Pass1_G_Buffer;
+cFBO g_FBO_Pass2_Deferred;
 
 // The Game Boundaries:
 const float maxX = 15.0f;
@@ -95,9 +95,9 @@ GLFWwindow* g_pGLFWWindow = NULL;
 
 bool g_bUseDeferred = true; // Switch between 1 pass or 2 passes...
 bool g_bIsSecondPass = false;
-const int RENDER_PASS_0 = 0;
-const int RENDER_PASS_1 = 1;
-const int RENDER_PASS_2 = 2;
+const int RENDER_PASS_0_G_BUFFER_PASS = 0;
+const int RENDER_PASS_1_DEFERRED_RENDER_PASS = 1;
+const int RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS = 2;
 
 GLint g_renderID = 0;
 
@@ -313,10 +313,13 @@ int main( void )
 
 	// Change Other lights parameters==========================
 	{
-		::g_pLightManager->vecLights[0].position = glm::vec3( 50.0f, 50.0f, 50.0f );
-		::g_pLightManager->vecLights[0].attenuation.y = 0.03f;	// Linear		
+		::g_pLightManager->vecLights[0].position = glm::vec3( 100.0, 200.0f, -100.0f );
+				
+		::g_pLightManager->vecLights[0].attenuation.y = 0.001f;	// Linear
+		::g_pLightManager->vecLights[0].attenuation.z = 0.0f;	// Quadractic
 	}
 	//=========================================================
+
 	::g_pLightManager->LoadShaderUniformLocations( currentProgID );
 
 	//loadLightObjects();
@@ -380,38 +383,38 @@ int main( void )
 	glEnable( GL_DEPTH );
 
 	// Create an FBO
-	//	if ( ! g_myFBO.init(width, height, error) )
-	if( !g_myFBO.init( 1920, 1080, error ) )
+	//	if ( ! g_FBO_Pass1_G_Buffer.init(width, height, error) )
+	if( !g_FBO_Pass1_G_Buffer.init( 1920, 1080, error ) )
 	{
-		std::cout << "FBO error: " << error << std::endl;
+		std::cout << "G Buffer FBO error: " << error << std::endl;
 	}
 	else
 	{
-		std::cout << "FBO is good." << std::endl;
-		std::cout << "\tFBO ID = " << g_myFBO.ID << std::endl;
-		std::cout << "\tcolour texture ID = " << g_myFBO.colourTexture_0_ID << std::endl;
-		std::cout << "\tnormal texture ID = " << g_myFBO.normalTexture_1_ID << std::endl;
+		std::cout << "G Buffer FBO is good." << std::endl;
+		std::cout << "\tFBO ID = " << g_FBO_Pass1_G_Buffer.ID << std::endl;
+		std::cout << "\tcolour texture ID = " << g_FBO_Pass1_G_Buffer.colourTexture_0_ID << std::endl;
+		std::cout << "\tnormal texture ID = " << g_FBO_Pass1_G_Buffer.normalTexture_1_ID << std::endl;
 
-		std::cout << "GL_MAX_COLOR_ATTACHMENTS = " << g_myFBO.getMaxColourAttachments() << std::endl;
-		std::cout << "GL_MAX_DRAW_BUFFERS = " << g_myFBO.getMaxDrawBuffers() << std::endl;
+		std::cout << "GL_MAX_COLOR_ATTACHMENTS = " << g_FBO_Pass1_G_Buffer.getMaxColourAttachments() << std::endl;
+		std::cout << "GL_MAX_DRAW_BUFFERS = " << g_FBO_Pass1_G_Buffer.getMaxDrawBuffers() << std::endl;
 
 	}
 
 	// Create an FBO
-	//	if ( ! g_myFBO.init(width, height, error) )
-	if( !g_myMirrorFBO.init( 1920, 1080, error ) )
+	//	if ( ! g_FBO_Pass1_G_Buffer.init(width, height, error) )
+	if( !g_FBO_Pass2_Deferred.init( 1920, 1080, error ) )
 	{
-		std::cout << "Mirror FBO error: " << error << std::endl;
+		std::cout << "2nd Pass FBO error: " << error << std::endl;
 	}
 	else
 	{
-		std::cout << "Mirror FBO is good." << std::endl;
-		std::cout << "\tFBO ID = " << g_myMirrorFBO.ID << std::endl;
-		std::cout << "\tcolour texture ID = " << g_myMirrorFBO.colourTexture_0_ID << std::endl;
-		std::cout << "\tnormal texture ID = " << g_myMirrorFBO.normalTexture_1_ID << std::endl;
+		std::cout << "2nd Pass FBO is good." << std::endl;
+		std::cout << "\t 2nd Pass FBO ID = " << g_FBO_Pass2_Deferred.ID << std::endl;
+		std::cout << "\tcolour texture ID = " << g_FBO_Pass2_Deferred.colourTexture_0_ID << std::endl;
+		std::cout << "\tnormal texture ID = " << g_FBO_Pass2_Deferred.normalTexture_1_ID << std::endl;
 
-		std::cout << "GL_MAX_COLOR_ATTACHMENTS = " << g_myMirrorFBO.getMaxColourAttachments() << std::endl;
-		std::cout << "GL_MAX_DRAW_BUFFERS = " << g_myMirrorFBO.getMaxDrawBuffers() << std::endl;
+		std::cout << "GL_MAX_COLOR_ATTACHMENTS = " << g_FBO_Pass2_Deferred.getMaxColourAttachments() << std::endl;
+		std::cout << "GL_MAX_DRAW_BUFFERS = " << g_FBO_Pass2_Deferred.getMaxDrawBuffers() << std::endl;
 
 	}
 
@@ -432,12 +435,80 @@ int main( void )
 		double deltaTime = curTime - lastTimeStep;
 		lastTimeStep = curTime;
 
-		//move_player();
+		// #################################################################
 
-		//::g_pSteeringManager->updateAll( deltaTime );
+		//// In this pass, we render all the geometry to the "G buffer"
+		//// The lighting is NOT done here. 
+		//// 
+		//::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
-		// Check for collisions with the player and update it's health
-		//collisionCheck();
+		//// Direct everything to the FBO
+		//GLint renderPassNumber_LocID = glGetUniformLocation( sexyShaderID, "renderPassNumber" );
+		//glUniform1i( renderPassNumber_LocID, RENDER_PASS_0_G_BUFFER_PASS );
+
+		//glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass1_G_Buffer.ID );
+		//// Clear colour AND depth buffer
+		//g_FBO_Pass1_G_Buffer.clearBuffers();
+
+		//RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
+		////    ___         __                         _   ___                _             ___               
+		////   |   \  ___  / _| ___  _ _  _ _  ___  __| | | _ \ ___  _ _   __| | ___  _ _  | _ \ __ _  ___ ___
+		////   | |) |/ -_)|  _|/ -_)| '_|| '_|/ -_)/ _` | |   // -_)| ' \ / _` |/ -_)| '_| |  _// _` |(_-<(_-<
+		////   |___/ \___||_|  \___||_|  |_|  \___|\__,_| |_|_\\___||_||_|\__,_|\___||_|   |_|  \__,_|/__//__/
+		////   
+		//// In this pass, we READ from the G-buffer, and calculate the lighting. 
+		//// In this example, we are writing to another FBO, now. 
+		//// 
+		//// Render it again, but point the the FBO texture... 
+		//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+		//g_FBO_Pass2_Deferred.clearBuffers();
+		//
+		//::g_pShaderManager->useShaderProgram( "mySexyShader" );
+
+		//glUniform1i( renderPassNumber_LocID, RENDER_PASS_1_DEFERRED_RENDER_PASS );
+		//
+		//GLint texFBOColour2DTextureUnitID = 10;
+		//GLint texFBOColour2DLocID = glGetUniformLocation( sexyShaderID, "texFBOColour2D" );
+		//GLint texFBONormal2DTextureUnitID = 11;
+		//GLint texFBONormal2DLocID = glGetUniformLocation( sexyShaderID, "texFBONormal2D" );
+		//GLint texFBOWorldPosition2DTextureUnitID = 12;
+		//GLint texFBOWorldPosition2DLocID = glGetUniformLocation( sexyShaderID, "texFBOVertexWorldPos2D" );
+
+		//// Pick a texture unit... 
+		//glActiveTexture( GL_TEXTURE0 + texFBOColour2DTextureUnitID );
+		//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.colourTexture_0_ID );
+		//glUniform1i( texFBOColour2DLocID, texFBOColour2DTextureUnitID );
+
+		//glActiveTexture( GL_TEXTURE0 + texFBONormal2DTextureUnitID );
+		//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.normalTexture_1_ID );
+		//glUniform1i( texFBONormal2DLocID, texFBONormal2DTextureUnitID );
+
+		//glActiveTexture( GL_TEXTURE0 + texFBOWorldPosition2DTextureUnitID );
+		//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.vertexWorldPos_2_ID );
+		//glUniform1i( texFBOWorldPosition2DLocID, texFBOWorldPosition2DTextureUnitID );
+
+		//// Set the sampler in the shader to the same texture unit (20)
+
+		//glfwGetFramebufferSize( ::g_pGLFWWindow, &width, &height );
+
+		//GLint screenWidthLocID = glGetUniformLocation( sexyShaderID, "screenWidth" );
+		//GLint screenHeightLocID = glGetUniformLocation( sexyShaderID, "screenHeight" );
+		//glUniform1f( screenWidthLocID, ( float )width );
+		//glUniform1f( screenHeightLocID, ( float )height );
+	
+
+		//std::vector< cGameObject* >  vecCopy2ndPass;
+		//// Push back a SINGLE quad or GIANT triangle that fills the entire screen
+		//// Here we will use the skybox (as it fills the entire screen)
+		//vecCopy2ndPass.push_back( ::g_pSkyBoxObject );
+		////vecCopy2ndPass.push_back( ::g_vecGameObjects[1] );
+		//RenderScene( vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
+
+		// #################################################################
+
+
+
+		////THIS IS MY OLD CODE:
 
 		::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
@@ -445,62 +516,28 @@ int main( void )
 		if( !::g_bUseDeferred )
 		{
 			// Direct everything to the FBO
-			//GLint bIsSecondPassLocID = glGetUniformLocation( sexyShaderID, "bIsSecondPass" );
-			//glUniform1i( bIsSecondPassLocID, GL_FALSE );
-			// Direct everything to the FBO
 			GLint renderPassNumber_LocID = glGetUniformLocation( sexyShaderID, "renderPassNumber" );
-			glUniform1i( renderPassNumber_LocID, RENDER_PASS_0 );
+			glUniform1i( renderPassNumber_LocID, RENDER_PASS_0_G_BUFFER_PASS );
 
 			glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 			// Clear colour AND depth buffer
-			g_myFBO.clearBuffers();
+			g_FBO_Pass1_G_Buffer.clearBuffers();
 
 			RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
 		}
 		else
 		{	// Using the Deferred Renderer
 
-			////// ##########################################
-			////g_myMirrorFBO
-
-			//glm::vec3 tempPosition = ::g_pTheMouseCamera->Position;
-			//// rotate the camera around (to mirror position)
-			//::g_pTheMouseCamera->Position = ::g_pMirrorObject->position;
-			//::g_pTheMouseCamera->Yaw += 180.0f;
-			//::g_pTheMouseCamera->Pitch = -::g_pTheMouseCamera->Pitch;
-			//::g_pTheMouseCamera->ProcessMouseMovement( 0, 0, false );
-
-			//// Direct everything to the FBO		
-			//::g_bIsSecondPass = true;
-			//
-			//GLint renderPassNumber_LocID = glGetUniformLocation( sexyShaderID, "renderPassNumber" );
-			//glUniform1i( renderPassNumber_LocID, RENDER_PASS_0 );
-
-			//glBindFramebuffer( GL_FRAMEBUFFER, g_myMirrorFBO.ID );
-
-			//// Clear colour AND depth buffer
-			//g_myMirrorFBO.clearBuffers();
-
-			//RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
-
-			//// Revert the camera to correct position
-			//::g_pTheMouseCamera->Position = tempPosition;
-			//::g_pTheMouseCamera->Yaw -= 180.0f;
-			//::g_pTheMouseCamera->Pitch = -::g_pTheMouseCamera->Pitch;
-			//::g_pTheMouseCamera->ProcessMouseMovement( 0, 0, true );
-
-			////// ##########################################
-
 			// Direct everything to the FBO		
 			::g_bIsSecondPass = false;
 
 			GLint renderPassNumber_LocID = glGetUniformLocation( sexyShaderID, "renderPassNumber" );
-			glUniform1i( renderPassNumber_LocID, RENDER_PASS_0 );
+			glUniform1i( renderPassNumber_LocID, RENDER_PASS_0_G_BUFFER_PASS );
 
-			glBindFramebuffer( GL_FRAMEBUFFER, g_myFBO.ID );
+			glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass1_G_Buffer.ID );
 
 			// Clear colour AND depth buffer
-			g_myFBO.clearBuffers();
+			g_FBO_Pass1_G_Buffer.clearBuffers();
 
 			RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
 
@@ -519,8 +556,7 @@ int main( void )
 
 			::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
-			//glUniform1i( bIsSecondPassLocID, GL_TRUE );
-			glUniform1i( renderPassNumber_LocID, RENDER_PASS_1 );
+			glUniform1i( renderPassNumber_LocID, RENDER_PASS_1_DEFERRED_RENDER_PASS );
 
 			GLint texFBOColour2DTextureUnitID = 10;
 			GLint texFBOColour2DLocID = glGetUniformLocation( sexyShaderID, "texFBOColour2D" );
@@ -529,29 +565,20 @@ int main( void )
 			GLint texFBOWorldPosition2DTextureUnitID = 12;
 			GLint texFBOWorldPosition2DLocID = glGetUniformLocation( sexyShaderID, "texFBOVertexWorldPos2D" );
 
-			//GLint texFBODepth2DTextureUnitID = 13;													   //ADDED
-			//GLint texFBODepth2DLocID = glGetUniformLocation( sexyShaderID, "texFBODepth2D" );		   //ADDED
-
-
 			// Pick a texture unit... 
 			glActiveTexture( GL_TEXTURE0 + texFBOColour2DTextureUnitID );
-			glBindTexture( GL_TEXTURE_2D, g_myFBO.colourTexture_0_ID );
+			glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.colourTexture_0_ID );
 			glUniform1i( texFBOColour2DLocID, texFBOColour2DTextureUnitID );
 
 			glActiveTexture( GL_TEXTURE0 + texFBONormal2DTextureUnitID );
-			glBindTexture( GL_TEXTURE_2D, g_myFBO.normalTexture_1_ID );
+			glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.normalTexture_1_ID );
 			glUniform1i( texFBONormal2DLocID, texFBONormal2DTextureUnitID );
 
 			glActiveTexture( GL_TEXTURE0 + texFBOWorldPosition2DTextureUnitID );
-			glBindTexture( GL_TEXTURE_2D, g_myFBO.vertexWorldPos_2_ID );
+			glBindTexture( GL_TEXTURE_2D, g_FBO_Pass1_G_Buffer.vertexWorldPos_2_ID );
 			glUniform1i( texFBOWorldPosition2DLocID, texFBOWorldPosition2DTextureUnitID );
 
-			//glActiveTexture( GL_TEXTURE0 + texFBODepth2DTextureUnitID );				   //ADDED
-			//glBindTexture( GL_TEXTURE_2D, g_myFBO.depthTexture_ID );					   //ADDED
-			//glUniform1i( texFBODepth2DLocID, texFBODepth2DTextureUnitID );				   //ADDED
-
 			// Set the sampler in the shader to the same texture unit (20)
-
 			glfwGetFramebufferSize( ::g_pGLFWWindow, &width, &height );
 
 			GLint screenWidthLocID = glGetUniformLocation( sexyShaderID, "screenWidth" );
@@ -559,60 +586,16 @@ int main( void )
 			glUniform1f( screenWidthLocID, ( float )width );
 			glUniform1f( screenHeightLocID, ( float )height );
 
-			
-
-			if( ::g_theQuestionNumber == 5 )
-			{
-				::g_staticEffect = 1;
-
-				::g_staticOffset = generateRandomNumber( 0.0f, 1024.0f );
-			}
-			else
-			{
-				::g_staticEffect = 0;
-				::g_staticOffset = 0.0f;
-			}
-			//GLint DrunkOffset_LocID = glGetUniformLocation( sexyShaderID, "DrunkOffset" );
-			//glUniform1f( DrunkOffset_LocID, ::g_staticOffset );
-
-			//GLint DrunkFlag_LocID = glGetUniformLocation( sexyShaderID, "DrunkEffect" );
-			//glUniform1i( DrunkFlag_LocID, ::g_staticEffect );
-
-			//GLint OutlineFlag_LocID = glGetUniformLocation( sexyShaderID, "useOutline" );
-			//glUniform1i( OutlineFlag_LocID, ::g_outline );
-
 			std::vector< cGameObject* >  vecCopy2ndPass;
 			// Push back a SINGLE quad or GIANT triangle that fills the entire screen
 			vecCopy2ndPass.push_back( ::g_pSkyBoxObject );
 			RenderScene( vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
-
-			// #################################################################
-			//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-			//
-			//::g_pShaderManager->useShaderProgram( "mySexyShader" );
-
-			//glUniform1i( renderPassNumber_LocID, RENDER_PASS_2 );
-
-			//GLint fullRenderedImage2D_LocID = glGetUniformLocation( sexyShaderID, "fullRenderedImage2D" );
-
-			////glUniform1i( fullRenderedImage2D_LocID, g_renderID );
-			//glUniform1i( fullRenderedImage2D_LocID, g_renderID );  //12 );
-			//
-			//std::vector< cGameObject* >  vecCopy2ndPass1;
-			//// Draw just the terrain as a test
-			////vecCopy2ndPass1.push_back( ::g_pSkyBoxObject );
-			//vecCopy2ndPass1.push_back( ::g_pMirrorObject );
-			//RenderScene( vecCopy2ndPass1, ::g_pGLFWWindow, deltaTime );
-			// #################################################################
 		}
 
-		//move_player( deltaTime );
 
-		//::g_pSteeringManager->updateAll( deltaTime );
 
-		//// Check for collisions with the player and update it's health
-		//collisionCheck();
-
+		//=====================================================
+		// The Camera adjustmentments  
 		if( ::g_theQuestionNumber == 2 || ::g_theQuestionNumber == 3 )
 		{	
 

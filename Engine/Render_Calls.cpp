@@ -13,7 +13,7 @@
 
 // HACK
 #include "cFBO.h"
-extern cFBO g_myFBO;
+extern cFBO g_FBO_Pass1_G_Buffer;
 
 extern bool g_bIsSecondPass;
 
@@ -46,11 +46,11 @@ void setTextureBindings( GLint shaderID, sMeshDrawInfo &theMesh );
 // See: http://www.glfw.org/docs/latest/window_guide.html#window_size
 void window_size_callback( GLFWwindow* window, int width, int height )
 {
-	if( ( ::g_myFBO.width != width ) || ( ::g_myFBO.height != height ) )
+	if( ( ::g_FBO_Pass1_G_Buffer.width != width ) || ( ::g_FBO_Pass1_G_Buffer.height != height ) )
 	{
 		// Window size has changed, so resize the offscreen frame buffer object
 		std::string error;
-		if( !::g_myFBO.reset( width, height, error ) )
+		if( !::g_FBO_Pass1_G_Buffer.reset( width, height, error ) )
 		{
 			std::cout << "In window_size_callback(), the FBO.reset() call returned an error:" << std::endl;
 			std::cout << "\t" << error << std::endl;

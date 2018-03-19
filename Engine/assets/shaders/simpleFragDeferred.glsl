@@ -282,9 +282,9 @@ void main()
 		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
 
 		// HACK TO HAVE ONLY THE COLOR AT THE SCREEN
-		//fragOut.normal.a = CALCULATE_LIGHTING;
-		fragOut.normal.a = DONT_CALCULATE_LIGHTING;
-		fragOut.colour.rgb = matDiffuse.rgb;
+		fragOut.normal.a = CALCULATE_LIGHTING;
+		//fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+		//fragOut.colour.rgb = matDiffuse.rgb;
 
 		////NO lighting pass here (there WOULD be if this were "forward renderered")
 		////****************************************************************/	
