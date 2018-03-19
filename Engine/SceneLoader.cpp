@@ -129,22 +129,18 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 	//	::g_RoomMaskForStencil->vecMeshes.push_back( meshInfo );
 	//}
 
-
-
-
-	{ // Mirror
-		::g_pMirrorObject = new cGameObject();
-		::g_pMirrorObject->friendlyName = "Mirror";
-		::g_pMirrorObject->scale = 5.0f;
-		//::g_pMirrorObject->position = glm::vec3( 0.0f, 1.0f, 3.0f );
-		::g_pMirrorObject->position = glm::vec3( 10.0f, -6, -40.0f );	// NEXT TO THE ROVER
-		//::g_pMirrorObject->adjustQOrientationFormDeltaEuler( glm::vec3( glm::radians(90.0f), 0.0f, glm::radians( 90.0f ) ) );
+	{ // ======================================
+	  // CREATING FIRST TV
+	  // ======================================
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->friendlyName = "TV1";
+		pTempGO->scale = 0.1f;
+		pTempGO->position = glm::vec3( 7.0f, -6, -30.0f );	// NEXT TO THE ROVER
 
 		cMesh theMesh;
-		theMesh.name = "mirror";
+		theMesh.name = "tv";
 
-		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "mirror.ply", theMesh ) )
-		//if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly.ply", theMesh ) )
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.bodyonly_xz.ply", theMesh ) )
 		{
 			std::cout << "Didn't load model" << std::endl;
 		}
@@ -154,16 +150,146 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		{
 			std::cout << "Could not load mesh into VAO" << std::endl;
 		}
-		
-			sMeshDrawInfo meshInfo;
-			meshInfo.scale = ::g_pMirrorObject->scale;
-			meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
-			meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
-			meshInfo.name = "mirror";
-			meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
-			::g_pMirrorObject->vecMeshes.push_back( meshInfo );
-			//::g_vecGameObjects.push_back( ::g_pMirrorObject );		// Fastest way to add
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = pTempGO->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "tv";
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
+		pTempGO->vecMeshes.push_back( meshInfo );
+		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+
 	}
+	
+	{	// ======================================
+		// AND THE FIRST SCREEN
+		// ======================================
+		::g_pTVScreen1 = new cGameObject();
+		::g_pTVScreen1->friendlyName = "TVScreen1";
+		::g_pTVScreen1->scale = 0.1f;
+		::g_pTVScreen1->position = glm::vec3( 7.0f, -6, -30.0f );	// SAME POSITION AS THE TV
+		cMesh theMesh;
+		theMesh.name = "tvscreen";
+
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly_xz.ply", theMesh ) )
+		{
+			std::cout << "Didn't load model" << std::endl;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
+		{
+			std::cout << "Could not load mesh into VAO" << std::endl;
+		}
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = ::g_pTVScreen1->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "tvscreen";
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
+		::g_pTVScreen1->vecMeshes.push_back( meshInfo );
+		//::g_vecGameObjects.push_back( ::g_pTVScreen1 );		// Fastest way to add
+	}
+
+	{ // ======================================
+	  // CREATING SECOND TV
+	  // ======================================
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->friendlyName = "TV1";
+		pTempGO->scale = 0.1f;
+		pTempGO->position = glm::vec3( -7.0f, -6, -30.0f );
+
+		cMesh theMesh;
+		theMesh.name = "tv";
+
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.bodyonly_xz.ply", theMesh ) )
+		{
+			std::cout << "Didn't load model" << std::endl;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
+		{
+			std::cout << "Could not load mesh into VAO" << std::endl;
+		}
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = pTempGO->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "tv";
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
+		pTempGO->vecMeshes.push_back( meshInfo );
+		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+
+	}
+
+	{	// ======================================
+		// AND THE SECOND SCREEN
+		// ======================================
+		::g_pTVScreen2 = new cGameObject();
+		::g_pTVScreen2->friendlyName = "TVScreen1";
+		::g_pTVScreen2->scale = 0.1f;
+		::g_pTVScreen2->position = glm::vec3( -7.0f, -6, -30.0f );	// SAME POSITION AS THE TV
+		cMesh theMesh;
+		theMesh.name = "tvscreen";
+
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly_xz.ply", theMesh ) )
+		{
+			std::cout << "Didn't load model" << std::endl;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
+		{
+			std::cout << "Could not load mesh into VAO" << std::endl;
+		}
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = ::g_pTVScreen2->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "tvscreen";
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
+		::g_pTVScreen2->vecMeshes.push_back( meshInfo );
+		//::g_vecGameObjects.push_back( ::g_pTVScreen1 );		// Fastest way to add
+	}
+
+
+	//{ // Mirror
+	//	::g_pMirrorObject = new cGameObject();
+	//	::g_pMirrorObject->friendlyName = "Mirror";
+	//	::g_pMirrorObject->scale = 5.0f;
+	//	//::g_pMirrorObject->position = glm::vec3( 0.0f, 1.0f, 3.0f );
+	//	::g_pMirrorObject->position = glm::vec3( 10.0f, -6, -40.0f );	// NEXT TO THE ROVER
+	//	//::g_pMirrorObject->adjustQOrientationFormDeltaEuler( glm::vec3( glm::radians(90.0f), 0.0f, glm::radians( 90.0f ) ) );
+
+	//	cMesh theMesh;
+	//	theMesh.name = "mirror";
+
+	//	if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "mirror.ply", theMesh ) )
+	//	//if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly.ply", theMesh ) )
+	//	{
+	//		std::cout << "Didn't load model" << std::endl;
+	//	}
+	//	// ***********************************************************************
+	//	// NOTE the TRUE so that it keeps the mesh!!!
+	//	else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
+	//	{
+	//		std::cout << "Could not load mesh into VAO" << std::endl;
+	//	}
+	//	
+	//		sMeshDrawInfo meshInfo;
+	//		meshInfo.scale = ::g_pMirrorObject->scale;
+	//		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+	//		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+	//		meshInfo.name = "mirror";
+	//		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
+	//		::g_pMirrorObject->vecMeshes.push_back( meshInfo );
+	//		//::g_vecGameObjects.push_back( ::g_pMirrorObject );		// Fastest way to add
+	//}
 
 	{	// Our skybox object
 		::g_pSkyBoxObject = new cGameObject();

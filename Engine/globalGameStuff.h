@@ -56,4 +56,8 @@ extern	GLFWwindow* g_pGLFWWindow;	// In TheMain.cpp
 extern bool g_IsWindowFullScreen;	// false at start
 void setWindowFullScreenOrWindowed( GLFWwindow* pTheWindow, bool IsFullScreen );	// In TheMain.cpp
 
+
+extern cGameObject* g_pTVScreen1;
+extern cGameObject* g_pTVScreen2;
+
 #endif

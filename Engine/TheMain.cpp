@@ -71,7 +71,10 @@ std::vector< cGameObject* > g_vecGameObjects;
 cGameObject* g_pThePlayerGO = NULL;
 cGameObject* g_pSkyBoxObject = NULL;
 cGameObject* g_pMirrorObject = NULL;
-cGameObject* g_pTheCameraDummy = NULL;
+cGameObject* g_pTheCameraDummy = NULL;	// USED FOR ROTATING THE CAMERAS
+
+cGameObject* g_pTVScreen1 = NULL;
+cGameObject* g_pTVScreen2 = NULL;
 
 //cCamera* g_pTheCamera = NULL;
 cMouseCamera* g_pTheMouseCamera = NULL;
@@ -587,7 +590,7 @@ int main( void )
 
 
 			////#####################################################################################
-			////// -----------> The Fourth Pass TRYING
+			////// -----------> The Fourth Pass
 			////// Drawing the image from the second pass to a TV screen
 			////#####################################################################################
 			glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -600,26 +603,6 @@ int main( void )
 			//glUniform1i( renderPassNumber_LocID, RENDER_PASS_1_DEFERRED_RENDER_PASS );
 			//glUniform1i( renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
 			glUniform1i( renderPassNumber_LocID, RENDER_PASS_3_TV_SCREEN );
-
-			//texFBOColour2DTextureUnitID = 20;
-			//texFBOColour2DLocID = glGetUniformLocation( sexyShaderID, "texFBOColour2D" );
-			//texFBONormal2DTextureUnitID = 21;
-			//texFBONormal2DLocID = glGetUniformLocation( sexyShaderID, "texFBONormal2D" );
-			//texFBOWorldPosition2DTextureUnitID = 22;
-			//texFBOWorldPosition2DLocID = glGetUniformLocation( sexyShaderID, "texFBOVertexWorldPos2D" );
-
-			//// Pick a texture unit... 
-			//glActiveTexture( GL_TEXTURE0 + texFBOColour2DTextureUnitID );
-			//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass2_Deferred.colourTexture_0_ID );
-			//glUniform1i( texFBOColour2DLocID, texFBOColour2DTextureUnitID );
-
-			//glActiveTexture( GL_TEXTURE0 + texFBONormal2DTextureUnitID );
-			//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass2_Deferred.normalTexture_1_ID );
-			//glUniform1i( texFBONormal2DLocID, texFBONormal2DTextureUnitID );
-
-			//glActiveTexture( GL_TEXTURE0 + texFBOWorldPosition2DTextureUnitID );
-			//glBindTexture( GL_TEXTURE_2D, g_FBO_Pass2_Deferred.vertexWorldPos_2_ID );
-			//glUniform1i( texFBOWorldPosition2DLocID, texFBOWorldPosition2DTextureUnitID );
 
 			// Set the sampler in the shader to the same texture unit (20)
 			glfwGetFramebufferSize( ::g_pGLFWWindow, &width, &height );
@@ -643,36 +626,51 @@ int main( void )
 			std::vector< cGameObject* >  vecCopy4thPass;
 			// Push back a SINGLE quad or GIANT triangle that fills the entire screen
 			//vecCopy3rdPass.push_back( ::g_pSkyBoxObject );
-			vecCopy4thPass.push_back( ::g_pMirrorObject );
+			//vecCopy4thPass.push_back( ::g_pMirrorObject );
+			vecCopy4thPass.push_back( ::g_pTVScreen1 );
 			RenderScene( vecCopy4thPass, ::g_pGLFWWindow, deltaTime );
 
-			////// -----------> The Third Pass
-			//////glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass2_Deferred.ID );
-			//////g_FBO_Pass2_Deferred.clearBuffers();
-			////glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-			////
-			////glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+			////#####################################################################################
+			////// -----------> The Fourth Pass ( REPEATING FOR THE SECOND SCREEN )
+			////// Drawing the image from the second pass to a TV screen
+			////#####################################################################################
+			glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+			//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+			//glBindFramebuffer( GL_FRAMEBUFFER, g_FBO_Pass2_Deferred.ID );
+			//g_FBO_Pass2_Deferred.clearBuffers();
 
-			//////renderPassNumber_LocID = glGetUniformLocation( sexyShaderID, "renderPassNumber" );
-			////glUniform1i( renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
-			//////glUniform1i( renderPassNumber_LocID, RENDER_PASS_3_TV_SCREEN );			
+			::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
-			////// The "deferred pass" FBO has a colour texture with the entire rendered scene
-			////// (including lighting, etc.)
-			////GLint fullRenderedImage2D_LocID = glGetUniformLocation(sexyShaderID, "fullRenderedImage2D");
-			////
-			////// Pick a texture unit... 
-			////unsigned int pass2unit = 50;
-			////glActiveTexture( GL_TEXTURE0 + pass2unit);
-			////glBindTexture(GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID);
-			////glUniform1i(fullRenderedImage2D_LocID, pass2unit);
+			//glUniform1i( renderPassNumber_LocID, RENDER_PASS_1_DEFERRED_RENDER_PASS );
+			//glUniform1i( renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
+			glUniform1i( renderPassNumber_LocID, RENDER_PASS_3_TV_SCREEN );
 
-			////std::vector< cGameObject* >  vecCopy3rdPass;
-			////// Push back a SINGLE quad or GIANT triangle that fills the entire screen
-			////// The Skybox works as well...
-			//////vecCopy3rdPass.push_back( ::g_pSkyBoxObject );
-			////vecCopy3rdPass.push_back( ::g_pMirrorObject );			
-			////RenderScene( vecCopy3rdPass, ::g_pGLFWWindow, deltaTime );
+			// Set the sampler in the shader to the same texture unit (20)
+			glfwGetFramebufferSize( ::g_pGLFWWindow, &width, &height );
+
+			screenWidthLocID = glGetUniformLocation( sexyShaderID, "screenWidth" );
+			screenHeightLocID = glGetUniformLocation( sexyShaderID, "screenHeight" );
+			glUniform1f( screenWidthLocID, ( float )width );
+			glUniform1f( screenHeightLocID, ( float )height );
+
+			// The "deferred pass" FBO has a colour texture with the entire rendered scene
+			// (including lighting, etc.)
+			//GLint fullRenderedImage2D_LocID = glGetUniformLocation( sexyShaderID, "fullRenderedImage2D" );
+			fullRenderedImage2D_LocID = glGetUniformLocation( sexyShaderID, "fullRenderedImage2D" );
+
+			// Pick a texture unit... 
+			//unsigned int pass2unit = 50;
+			glActiveTexture( GL_TEXTURE0 + pass2unit );
+			glBindTexture( GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID );
+			glUniform1i( fullRenderedImage2D_LocID, pass2unit );
+
+			std::vector< cGameObject* >  vecCopy4thPass2;
+			// Push back a SINGLE quad or GIANT triangle that fills the entire screen
+			//vecCopy3rdPass.push_back( ::g_pSkyBoxObject );
+			//vecCopy4thPass.push_back( ::g_pMirrorObject );
+			vecCopy4thPass2.push_back( ::g_pTVScreen2 );
+			RenderScene( vecCopy4thPass2, ::g_pGLFWWindow, deltaTime );
+
 
 		}
 
