@@ -70,6 +70,7 @@ std::vector< cGameObject* > g_vecGameObjects;
 cGameObject* g_pThePlayerGO = NULL;
 cGameObject* g_pSkyBoxObject = NULL;
 cGameObject* g_pMirrorObject = NULL;
+cGameObject* g_pTheCameraDummy = NULL;
 
 //cCamera* g_pTheCamera = NULL;
 cMouseCamera* g_pTheMouseCamera = NULL;
@@ -92,7 +93,7 @@ cDebugRenderer*			g_pDebugRenderer = 0;
 bool g_IsWindowFullScreen = false;
 GLFWwindow* g_pGLFWWindow = NULL;
 
-bool g_bUseDeferred = false; // Switch between 1 pass or 2 passes...
+bool g_bUseDeferred = true; // Switch between 1 pass or 2 passes...
 bool g_bIsSecondPass = false;
 const int RENDER_PASS_0 = 0;
 const int RENDER_PASS_1 = 1;
@@ -100,9 +101,10 @@ const int RENDER_PASS_2 = 2;
 
 GLint g_renderID = 0;
 
-unsigned int g_drunkEffect = 0;
-float g_drunkOffset = 0.0f;
-float g_drunkOffsetChange = 0.0001f;
+unsigned int g_theQuestionNumber = 1;
+
+unsigned int g_staticEffect = 0;
+float g_staticOffset = 0.0f;
 bool g_outline = false;
 
 // This contains the AABB grid for the terrain...
@@ -556,31 +558,27 @@ int main( void )
 			glUniform1f( screenWidthLocID, ( float )width );
 			glUniform1f( screenHeightLocID, ( float )height );
 
-			if( ::g_pThePlayerGO->friendlyName == "Rick" )
-			{// This if for Rick's Drunk Effect
+			
 
-				::g_drunkEffect = 1;
+			if( ::g_theQuestionNumber == 5 )
+			{
+				::g_staticEffect = 1;
 
-				if( ::g_drunkOffset >= 0.01f )
-					::g_drunkOffsetChange = -0.0001;
-				else if( ::g_drunkOffset <= -0.01f )
-					::g_drunkOffsetChange = 0.0001;
-
-				::g_drunkOffset += ::g_drunkOffsetChange;
+				::g_staticOffset = generateRandomNumber( 0.0f, 1024.0f );
 			}
 			else
 			{
-				::g_drunkEffect = 0;
-				::g_drunkOffset = 0.0f;
+				::g_staticEffect = 0;
+				::g_staticOffset = 0.0f;
 			}
-			GLint DrunkOffset_LocID = glGetUniformLocation( sexyShaderID, "DrunkOffset" );
-			glUniform1f( DrunkOffset_LocID, ::g_drunkOffset );
+			//GLint DrunkOffset_LocID = glGetUniformLocation( sexyShaderID, "DrunkOffset" );
+			//glUniform1f( DrunkOffset_LocID, ::g_staticOffset );
 
-			GLint DrunkFlag_LocID = glGetUniformLocation( sexyShaderID, "DrunkEffect" );
-			glUniform1i( DrunkFlag_LocID, ::g_drunkEffect );
+			//GLint DrunkFlag_LocID = glGetUniformLocation( sexyShaderID, "DrunkEffect" );
+			//glUniform1i( DrunkFlag_LocID, ::g_staticEffect );
 
-			GLint OutlineFlag_LocID = glGetUniformLocation( sexyShaderID, "useOutline" );
-			glUniform1i( OutlineFlag_LocID, ::g_outline );
+			//GLint OutlineFlag_LocID = glGetUniformLocation( sexyShaderID, "useOutline" );
+			//glUniform1i( OutlineFlag_LocID, ::g_outline );
 
 			std::vector< cGameObject* >  vecCopy2ndPass;
 			// Push back a SINGLE quad or GIANT triangle that fills the entire screen
@@ -614,16 +612,23 @@ int main( void )
 		//// Check for collisions with the player and update it's health
 		//collisionCheck();
 
-		// Update camera
-		ProcessCameraInput( ::g_pGLFWWindow, deltaTime );
-		//// No need to update the camera if nothing has changed
-		//if( ::g_pThePlayerGO->position != ::g_pThePlayerGO->prevPosition ||
-		//	::g_pThePlayerGO->qOrientation != ::g_pThePlayerGO->prevOrientation )
-		//{
-		//	::g_pTheMouseCamera->moveCamera();
-		//}
-		//::g_pThePlayerGO->prevOrientation = ::g_pThePlayerGO->qOrientation;
-		//::g_pThePlayerGO->prevPosition = ::g_pThePlayerGO->position;
+		if( ::g_theQuestionNumber == 2 )
+		{	
+			float frameAdjust = 0.5f * deltaTime;
+			::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, frameAdjust, 0.0f ) );
+
+			// No need to update the camera if nothing has changed
+			if( ::g_pTheCameraDummy->qOrientation != ::g_pTheCameraDummy->prevOrientation )
+			{
+				::g_pTheMouseCamera->moveCamera();
+			}
+			::g_pTheCameraDummy->prevOrientation = ::g_pTheCameraDummy->qOrientation;
+		}
+		else
+		{
+			// Update camera
+			ProcessCameraInput( ::g_pGLFWWindow, deltaTime );
+		}
 
 		// *********************************************
 		//    ___ _        ___              __     ___                          

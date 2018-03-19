@@ -93,11 +93,11 @@ glm::vec3 cGameObject::getPosition( void )
 }
 
 void cGameObject::overwrtiteQOrientationFromEuler( glm::vec3 eulerAxisOrientation )
-{
-	this->prevOrientation = this->qOrientation;
+{	
 	// Calcualte the quaternion represnetaiton of this Euler axis
 	// NOTE: We are OVERWRITING this..
 	this->qOrientation = glm::quat( eulerAxisOrientation );
+	this->prevOrientation = this->qOrientation;
 
 	return;
 }

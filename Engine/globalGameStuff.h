@@ -35,6 +35,8 @@ extern cLightManager*	g_pLightManager;	// (theMain.cpp)
 //void PhysicsStep( double deltaTime );
 
 const std::string PLAYERNAME = "Rover";		// Now that we have a lookup
+extern unsigned int g_theQuestionNumber;
+extern cGameObject* g_pTheCameraDummy;
 
 extern cGameObject* g_pThePlayerGO;
 

@@ -7,6 +7,12 @@
 
 #include <vector>
 
+enum Camera_Type
+{
+	FREE_MODE,
+	POI
+};
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement
 {
@@ -30,6 +36,8 @@ const float ZOOM = 45.0f;
 class cMouseCamera
 {
 public:
+
+	cGameObject* Target;
 	// Camera Attributes
 	glm::vec3 Position;
 	glm::vec3 Front;
@@ -52,6 +60,7 @@ public:
 		MouseSensitivity( SENSITIVTY ),
 		Zoom( ZOOM )
 	{
+		Target = NULL;
 		Position = position;
 		WorldUp = up;
 		Yaw = yaw;
@@ -65,6 +74,7 @@ public:
 		MouseSensitivity( SENSITIVTY ),
 		Zoom( ZOOM )
 	{
+		Target = NULL;
 		Position = glm::vec3( posX, posY, posZ );
 		WorldUp = glm::vec3( upX, upY, upZ );
 		Yaw = yaw;
@@ -147,6 +157,95 @@ public:
 		Right = glm::normalize( glm::cross( Front, WorldUp ) );
 		Up = glm::normalize( glm::cross( Right, Front ) );
 	}
+
+	float calculateDistance()
+	{
+		return glm::distance( this->Position, this->Target->position );
+	}
+
+	float calculateHorizontalDistance()
+	{
+	//	return this->Zoom * glm::cos( glm::radians( this->Pitch ) );
+		return calculateDistance() * glm::cos( glm::radians( this->Pitch ) );
+	}
+
+	float calculateVerticalDistance()
+	{
+		//return this->Zoom * glm::sin( glm::radians( this->Pitch ) );
+		return calculateDistance() * glm::sin( glm::radians( this->Pitch ) );
+	}
+
+	float calculatePitch()
+	{
+		glm::vec3 pitchRef;
+		pitchRef.x = this->Target->position.x;
+		pitchRef.y = this->Position.y;
+		pitchRef.z = this->Target->position.z;
+
+		glm::vec3 da = glm::normalize( pitchRef - this->Position );
+		glm::vec3 db = glm::normalize( this->Target->position - this->Position );
+		float cos = glm::acos( glm::dot( da, db ) );
+		cos *= -1;
+		return glm::degrees( cos );
+	}
+
+	float calculateYaw()
+	{
+		float newYaw = getYawInDegrees( Target->qOrientation );
+		newYaw -= 90.0f;
+		newYaw *= -1;
+		return newYaw;
+	}
+
+	float getYawInDegrees( glm::quat theQuat )
+	{
+		float yaw = 0.0f;
+		glm::vec3 targetEulerRot = glm::eulerAngles( theQuat );
+		float zDegrees = glm::degrees( targetEulerRot.z );
+		float yDegrees = glm::degrees( targetEulerRot.y );
+
+		if( zDegrees != 0.0f )
+		{
+			yaw = ( zDegrees / 2 ) + ( ( zDegrees / 2 ) - abs( yDegrees ) );
+			if( yDegrees < 0 )
+			{
+				yaw *= -1;
+			}
+		}
+		else
+		{
+			yaw = yDegrees;
+		}
+
+		return yaw;
+	}
+
+	void calculateCameraPosition( float hDist, float vDist )
+	{
+		glm::vec3 targetEulerRot = glm::eulerAngles( this->Target->qOrientation );
+
+		float yAngle = getYawInDegrees( this->Target->qOrientation );
+
+		float thetaAngle = yAngle; // +angleAroundTarget;
+		float offsetX = hDist * glm::sin( glm::radians( thetaAngle ) );
+		float offsetZ = hDist * glm::cos( glm::radians( thetaAngle ) );
+
+		this->Position.x = this->Target->position.x - offsetX;
+		this->Position.y = this->Target->position.y - vDist;
+		this->Position.z = this->Target->position.z - offsetZ;
+		this->Yaw = calculateYaw();
+		this->Pitch = calculatePitch();
+		this->updateCameraVectors();
+	}
+
+	void moveCamera()
+	{
+		float horizontalDistance = calculateHorizontalDistance();
+		float verticalDistance = calculateVerticalDistance();
+		calculateCameraPosition( horizontalDistance, verticalDistance );
+	}
+
+
 
 private:
 

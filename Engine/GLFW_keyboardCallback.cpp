@@ -30,140 +30,49 @@ extern bool g_outline;
 	{
 		::g_bIsWireframe = !::g_bIsWireframe;
 	}
-	
-	switch( key )
+
+	if( key == GLFW_KEY_1 && action == GLFW_PRESS )
 	{
-	case GLFW_KEY_A:		// Left
-		if( isShiftKeyDown( mods, true ) )
-		{
-			if( action == GLFW_PRESS )
-			{
-				
-			}
-			if( action == GLFW_RELEASE )
-			{
-				
-			}
-		}
-		else
-		{	
-			if( action == GLFW_PRESS )
-			{
-				
-			}
-			if( action == GLFW_RELEASE )
-			{
-				
-			}
-		}
-		break;
-	case GLFW_KEY_D:		// Right
-
-		if( isShiftKeyDown( mods, true ) )
-		{
-			if( action == GLFW_PRESS )
-			{
-				
-			}
-			if( action == GLFW_RELEASE )
-			{
-				
-			}
-		}
-		else
-		{
-			if( action == GLFW_PRESS )
-			{
-				
-			}
-			if( action == GLFW_RELEASE )
-			{
-				
-			}
-		}
-		break;
-	case GLFW_KEY_W:		// Forward
-		if( isShiftKeyDown( mods, true ) )
-		{
-			if( action == GLFW_PRESS )
-			{
-				
-			}
-			if( action == GLFW_RELEASE )
-			{
-			
-			}
-		}
-		else
-		{
-			if( action == GLFW_PRESS )
-			{
-			
-			}
-			if( action == GLFW_RELEASE )
-			{
-			
-			}
-		}
-		break;
-	case GLFW_KEY_S:		// Backwards
-		if( action == GLFW_PRESS )
-		{
-		
-		}
-		if( action == GLFW_RELEASE )
-		{
-		
-		}				
-		break;
-	case GLFW_KEY_Q:		// Turn Left
-		if( action == GLFW_PRESS )
-		{
-		
-		}
-		if( action == GLFW_RELEASE )
-		{
-		
-		}
-		break;
-	case GLFW_KEY_E:		// Turn Right
-
-		if( action == GLFW_PRESS )
-		{
-		
-		}
-		if( action == GLFW_RELEASE )
-		{
-
-		}
-		break;
-
-	case GLFW_KEY_T:		// Perform Action
-
-		if( action == GLFW_PRESS )
-		{
-		}
-		break;
-
-	case GLFW_KEY_SPACE:
-		if( action == GLFW_PRESS )
-		{						
-
-		}
-		break;
-
-	case GLFW_KEY_UP:
-		break;
-
-	case GLFW_KEY_DOWN:
-		break;
-
-	case GLFW_KEY_LEFT:		
-		break;
-
-	case GLFW_KEY_RIGHT:		
-		break;
+		::g_theQuestionNumber = 1;
 	}
+	if( key == GLFW_KEY_2 && action == GLFW_PRESS )
+	{
+		::g_theQuestionNumber = 2;
+		
+		::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
+		//::g_pTheMouseCamera->Position.y + 5.0f;
+		::g_pTheMouseCamera->Pitch = -10.0f;
+		
+		::g_pTheMouseCamera->moveCamera();
+		//::g_pTheMouseCamera->updateCameraVectors();
+	}
+	if( key == GLFW_KEY_3 && action == GLFW_PRESS )
+	{
+		::g_theQuestionNumber = 3;
+	}
+	if( key == GLFW_KEY_4 && action == GLFW_PRESS )
+	{
+		::g_theQuestionNumber = 4;
+	}
+	if( key == GLFW_KEY_5 && action == GLFW_PRESS )
+	{
+		::g_theQuestionNumber = 5;
+	}
+	if( key == GLFW_KEY_6 && action == GLFW_PRESS )
+	{
+		::g_theQuestionNumber = 6;
+	}
+
+	if( key == GLFW_KEY_A && action == GLFW_PRESS )
+	{
+		::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, 0.1f, 0.0f ) );
+	}
+
+	if( key == GLFW_KEY_D && action == GLFW_PRESS )
+	{
+		::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, -0.1f, 0.0f ) );
+	}
+	
 
 	return;
 }

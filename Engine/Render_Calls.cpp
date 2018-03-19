@@ -117,8 +117,8 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 
 
 	// Draw the scene
-	unsigned int sizeOfVector = ( unsigned int )::g_vecGameObjects.size();	//*****//
-	//unsigned int sizeOfVector = ( unsigned int )vec_pGOs.size();	//*****//
+	//unsigned int sizeOfVector = ( unsigned int )::g_vecGameObjects.size();	//*****//
+	unsigned int sizeOfVector = ( unsigned int )vec_pGOs.size();	//*****//
 	for( int index = 0; index != sizeOfVector; index++ )
 	{
 		cGameObject* pTheGO = ::g_vecGameObjects[index];

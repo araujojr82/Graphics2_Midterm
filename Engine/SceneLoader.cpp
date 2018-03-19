@@ -17,7 +17,6 @@ extern std::vector< cGameObject* >  g_vecGameObjects;
 extern cGameObject* g_pTheDebugSphere;
 extern cGameObject* g_pSkyBoxObject;
 extern cGameObject* g_pMirrorObject;
-extern cGameObject* g_pSphereObject;
 
 cSimpleAssimpSkinnedMesh* createSkinnedMesh( std::string meshFilename )
 {
@@ -155,6 +154,10 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 	}
 
 	{ // The Rover
+
+		cGameObject* g_pTheCameraDummy = new cGameObject();
+		g_pTheCameraDummy->friendlyName = "Dummy";
+
 		cGameObject* pTempGO = new cGameObject();
 		pTempGO->friendlyName = "Rover";
 		pTempGO->type = eTypeOfGO::CHARACTER;
@@ -184,6 +187,11 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
 		pTempGO->vecMeshes.push_back( meshInfo );
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+
+		// Im adding a dummy GO to anchor the camera
+		::g_pTheCameraDummy = new cGameObject();
+		::g_pTheCameraDummy->friendlyName = "Dummy";
+		::g_pTheCameraDummy->position = pTempGO->position;
 	}
 
 	{ // Terrain
