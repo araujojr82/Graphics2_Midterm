@@ -102,6 +102,7 @@ const int RENDER_PASS_2 = 2;
 GLint g_renderID = 0;
 
 unsigned int g_theQuestionNumber = 1;
+float g_camera3Timer = 0.0f;
 
 unsigned int g_staticEffect = 0;
 float g_staticOffset = 0.0f;
@@ -327,7 +328,7 @@ int main( void )
 	std::cout << "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " << ::g_pTextureManager->getOpenGL_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS() << std::endl;
 
 	::g_pTextureManager->setBasePath( "assets/textures" );
-	if( !::g_pTextureManager->Create2DTextureFromBMPFile( "mars.bmp", true ) )
+	if( !::g_pTextureManager->Create2DTextureFromBMPFile( "mars2.bmp", true ) )
 	{
 		std::cout << "Didn't load the texture. Oh no!" << std::endl;
 	}
@@ -612,10 +613,23 @@ int main( void )
 		//// Check for collisions with the player and update it's health
 		//collisionCheck();
 
-		if( ::g_theQuestionNumber == 2 )
+		if( ::g_theQuestionNumber == 2 || ::g_theQuestionNumber == 3 )
 		{	
-			float frameAdjust = 0.5f * deltaTime;
-			::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, frameAdjust, 0.0f ) );
+
+			if( ::g_theQuestionNumber == 2 )
+			{
+				float frameAdjust = 0.25f * ( float )deltaTime;
+				::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, frameAdjust, 0.0f ) );
+			}
+			else
+			{
+				::g_camera3Timer += ( float )deltaTime;
+				if( ::g_camera3Timer >= 2.0f )
+				{
+					::g_camera3Timer = 0.0f;
+					::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, glm::radians(90.0f), 0.0f ) );
+				}
+			}
 
 			// No need to update the camera if nothing has changed
 			if( ::g_pTheCameraDummy->qOrientation != ::g_pTheCameraDummy->prevOrientation )

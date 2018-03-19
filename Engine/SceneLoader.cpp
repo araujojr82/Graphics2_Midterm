@@ -220,7 +220,7 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
 		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
 		meshInfo.name = theMesh.name;
-		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "mars.bmp", 1.0f ) );
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "mars2.bmp", 1.0f ) );
 		pTempGO->vecMeshes.push_back( meshInfo );
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
 	}

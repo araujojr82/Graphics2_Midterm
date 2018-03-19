@@ -32,23 +32,33 @@ extern bool g_outline;
 	}
 
 	if( key == GLFW_KEY_1 && action == GLFW_PRESS )
-	{
+	{		
 		::g_theQuestionNumber = 1;
+		::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -8.0f, 2.0f, -8.0f );
+		::g_pTheMouseCamera->Pitch = -5.0f;
+		::g_pTheMouseCamera->Yaw = 45.0f;
+		::g_pTheMouseCamera->updateCameraVectors();
 	}
 	if( key == GLFW_KEY_2 && action == GLFW_PRESS )
 	{
 		::g_theQuestionNumber = 2;
 		
 		::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
-		//::g_pTheMouseCamera->Position.y + 5.0f;
-		::g_pTheMouseCamera->Pitch = -10.0f;
-		
+		::g_pTheMouseCamera->Pitch = -10.0f;		
 		::g_pTheMouseCamera->moveCamera();
-		//::g_pTheMouseCamera->updateCameraVectors();
 	}
 	if( key == GLFW_KEY_3 && action == GLFW_PRESS )
 	{
 		::g_theQuestionNumber = 3;
+
+		::g_camera3Timer = 0.0f;
+		::g_pTheCameraDummy->overwrtiteQOrientationFromEuler( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+
+		::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
+		::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -4.0f, 2.0f, -4.0f );
+		::g_pTheMouseCamera->Pitch = -5.0f;
+		::g_pTheMouseCamera->moveCamera();
+		
 	}
 	if( key == GLFW_KEY_4 && action == GLFW_PRESS )
 	{

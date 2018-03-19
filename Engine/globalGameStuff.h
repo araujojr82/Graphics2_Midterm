@@ -36,6 +36,7 @@ extern cLightManager*	g_pLightManager;	// (theMain.cpp)
 
 const std::string PLAYERNAME = "Rover";		// Now that we have a lookup
 extern unsigned int g_theQuestionNumber;
+extern float g_camera3Timer;
 extern cGameObject* g_pTheCameraDummy;
 
 extern cGameObject* g_pThePlayerGO;
