@@ -22,7 +22,8 @@
 // ******************************************************************
 
 // Remember to #include <vector>...
-extern std::vector< cGameObject* >  g_vecGameObjects;
+extern std::vector< cGameObject* > g_vecGameObjects;
+extern std::vector< cGameObject* > g_vecGameObjectsForTVscene;
 
 extern bool g_bIsWireframe;
 

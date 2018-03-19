@@ -68,6 +68,7 @@ extern bool g_outline;
 	if( key == GLFW_KEY_4 && action == GLFW_PRESS )
 	{
 		::g_theQuestionNumber = 4;
+		::g_pTheMouseCamera = ::g_pTheCamera0;
 	}
 	if( key == GLFW_KEY_5 && action == GLFW_PRESS )
 	{
