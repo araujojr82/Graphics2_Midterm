@@ -30,88 +30,40 @@ extern bool g_outline;
 	{
 		::g_bIsWireframe = !::g_bIsWireframe;
 	}
-
-	//const float CAMERASPEED = 1.0f;
-
-	//switch( key )
-	//{
-	//	case GLFW_KEY_1:
-	//		::g_pLightManager->vecLights[0].attenuation.y *= 0.99f;	// less 1%
-	//		break;
-	//	case GLFW_KEY_2:
-	//		::g_pLightManager->vecLights[0].attenuation.y *= 1.01f; // more 1%
-	//		if( ::g_pLightManager->vecLights[0].attenuation.y <= 0.0f )
-	//		{
-	//			::g_pLightManager->vecLights[0].attenuation.y = 0.001f;	// Some really tiny value
-	//		}
-	//		break;
-	//	case GLFW_KEY_3:	// Quad
-	//		::g_pLightManager->vecLights[0].attenuation.z *= 0.99f;	// less 1%
-	//		break;
-	//	case GLFW_KEY_4:	//  Quad
-	//		::g_pLightManager->vecLights[0].attenuation.z *= 1.01f; // more 1%
-	//		if( ::g_pLightManager->vecLights[0].attenuation.z <= 0.0f )
-	//		{
-	//			::g_pLightManager->vecLights[0].attenuation.z = 0.001f;	// Some really tiny value
-	//		}
-	//		break;
-	//		// Lights
-	//		// CAMERA and lighting
-	//	case GLFW_KEY_A:		// Left
-	//		::g_pLightManager->vecLights[0].position.x -= CAMERASPEED;
-	//		break;
-	//	case GLFW_KEY_D:		// Right
-	//		::g_pLightManager->vecLights[0].position.x += CAMERASPEED;
-	//		break;
-	//	case GLFW_KEY_W:		// Forward (along z)
-	//		::g_pLightManager->vecLights[0].position.z += CAMERASPEED;
-	//		break;
-	//	case GLFW_KEY_S:		// Backwards (along z)
-	//		::g_pLightManager->vecLights[0].position.z -= CAMERASPEED;
-	//		break;
-	//	case GLFW_KEY_Q:		// "Down" (along y axis)
-	//		::g_pLightManager->vecLights[0].position.y -= CAMERASPEED;
-	//		break;
-	//	case GLFW_KEY_E:		// "Up" (along y axis)
-	//		::g_pLightManager->vecLights[0].position.y += CAMERASPEED;
-	//		break;		
-	//};//switch (key)
-
-	//  // HACK: print output to the console
-	//  	std::cout << "Light[0] linear atten: "
-	//  		<< ::g_pLightManager->vecLights[0].attenuation.y << ", "
-	//  		<< ::g_pLightManager->vecLights[0].attenuation.z << std::endl;
-
-
-
+	
 	if( key == GLFW_KEY_1 && action == GLFW_PRESS )
-	{		
+	{	
 		::g_theQuestionNumber = 1;
-		::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -8.0f, 2.0f, -8.0f );
-		::g_pTheMouseCamera->Pitch = -5.0f;
-		::g_pTheMouseCamera->Yaw = 45.0f;
-		::g_pTheMouseCamera->updateCameraVectors();
+
+		::g_pTheMouseCamera = ::g_pTheCamera1;	// SETTING IT TO DEFAULT CAMERA
+		//::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -8.0f, 2.0f, -8.0f );
+		//::g_pTheMouseCamera->Pitch = -5.0f;
+		//::g_pTheMouseCamera->Yaw = 45.0f;
+		//::g_pTheMouseCamera->updateCameraVectors();
 	}
 	if( key == GLFW_KEY_2 && action == GLFW_PRESS )
 	{
 		::g_theQuestionNumber = 2;
 		
-		::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
-		::g_pTheMouseCamera->Pitch = -10.0f;		
-		::g_pTheMouseCamera->moveCamera();
+		::g_pTheMouseCamera = ::g_pTheCamera2;
+
+		//::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
+		//::g_pTheMouseCamera->Pitch = -10.0f;		
+		//::g_pTheMouseCamera->moveCamera();
 	}
 	if( key == GLFW_KEY_3 && action == GLFW_PRESS )
 	{
 		::g_theQuestionNumber = 3;
 
 		::g_camera3Timer = 0.0f;
-		::g_pTheCameraDummy->overwrtiteQOrientationFromEuler( glm::vec3( 0.0f, 0.0f, 0.0f ) );
-
-		::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
-		::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -4.0f, 2.0f, -4.0f );
-		::g_pTheMouseCamera->Pitch = -5.0f;
-		::g_pTheMouseCamera->moveCamera();
 		
+		::g_pTheMouseCamera = ::g_pTheCamera3;
+		//::g_pTheCameraDummy->overwrtiteQOrientationFromEuler( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+
+		//::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
+		//::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -4.0f, 2.0f, -4.0f );
+		//::g_pTheMouseCamera->Pitch = -5.0f;
+		//::g_pTheMouseCamera->moveCamera();		
 	}
 	if( key == GLFW_KEY_4 && action == GLFW_PRESS )
 	{

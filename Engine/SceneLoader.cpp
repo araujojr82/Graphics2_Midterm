@@ -355,9 +355,15 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
 
 		// Im adding a dummy GO to anchor the camera
-		::g_pTheCameraDummy = new cGameObject();
-		::g_pTheCameraDummy->friendlyName = "Dummy";
-		::g_pTheCameraDummy->position = pTempGO->position;
+		::g_pTheCamera2Dummy = new cGameObject();
+		::g_pTheCamera2Dummy->friendlyName = "Dummy2";
+		::g_pTheCamera2Dummy->position = pTempGO->position;
+		
+		// Im adding a dummy GO to anchor the camera
+		::g_pTheCamera3Dummy = new cGameObject();
+		::g_pTheCamera3Dummy->friendlyName = "Dummy3";
+		::g_pTheCamera3Dummy->position = pTempGO->position;
+
 	}
 
 	{ // Terrain

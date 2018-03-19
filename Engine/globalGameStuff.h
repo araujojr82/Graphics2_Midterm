@@ -37,13 +37,18 @@ extern cLightManager*	g_pLightManager;	// (theMain.cpp)
 const std::string PLAYERNAME = "Rover";		// Now that we have a lookup
 extern unsigned int g_theQuestionNumber;
 extern float g_camera3Timer;
-extern cGameObject* g_pTheCameraDummy;
+extern cGameObject* g_pTheCamera2Dummy;
+extern cGameObject* g_pTheCamera3Dummy;
 
 extern cGameObject* g_pThePlayerGO;
 
 extern cModelAssetLoader* g_pModelAssetLoader;	// (ModelUtilies.cpp)
 
 extern cMouseCamera* g_pTheMouseCamera;
+extern cMouseCamera* g_pTheCamera0;
+extern cMouseCamera* g_pTheCamera1;
+extern cMouseCamera* g_pTheCamera2;
+extern cMouseCamera* g_pTheCamera3;
 
 extern cVAOMeshManager*			g_pVAOManager;		// (theMain.cpp)
 extern cShaderManager*			g_pShaderManager;	// (theMain.cpp)

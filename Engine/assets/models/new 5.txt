@@ -1,0 +1,33 @@
+
+
+bool TVAChannel = false; // Channel 2, true = Channel 3
+bool TVBChannel = false; // Channel 2, true = Channel 3
+float TVAStaticCount = 0.0f;
+float TVBStaticCount = 0.0f;
+int TVAStaticOffset = 0;
+int TVBStaticOffset = 0;
+
+1) Need 4 cameras
+	0 : This is the default camera for question 1
+	A : will be rotating around the for question 2
+	B : will be taking pictures for question 3
+	C : the camera that will be controlled and display the TVs
+	
+2 ) Need 6 FBOs
+	FBO preA will draw the whole Mars scene using camera A
+	FBO A will hold the image of camera A (rotating)
+	FBO preB will draw the whole Mars scene using camera B
+	FBO B will hold the image of camera B (pictures)
+	
+	FBO preC will draw the whole TV scene using camera C
+	FBO C will draw the TVs scenes
+	
+
+1 Render first pass using camera A to FBO A
+2 Render second pass using camera B to FBO B
+
+For question 1: Render scene using camera 0 with just 1 pass and display 
+For question 2: Using the FBO A, render it to the screen
+For question 3: Using the FBO B, render it to the screen
+
+For questions 4 and 5: 

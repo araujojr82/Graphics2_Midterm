@@ -43,9 +43,24 @@
 //#include "cSteeringManager.h"
 
 #include "cFBO.h" 
+
+// Basic scene FBOs
 cFBO g_FBO_Pass1_G_Buffer;
 cFBO g_FBO_Pass2_Deferred;
-cFBO g_FBO_Pass3_TV;
+
+// 
+cFBO g_FBO_CameraA_Pass1;
+cFBO g_FBO_CameraA_Pass2;
+cFBO g_FBO_CameraB_Pass1;
+cFBO g_FBO_CameraB_Pass2;
+
+
+bool TVAChannel = false; // Channel 2; Channel 3 = true;
+bool TVBChannel = false; // Channel 2; Channel 3 = true;
+float TVAStaticCount = 0.0f;
+float TVBStaticCount = 0.0f;
+int TVAStaticOffset = 0;
+int TVBStaticOffset = 0;
 
 // The Game Boundaries:
 const float maxX = 15.0f;
@@ -71,7 +86,8 @@ std::vector< cGameObject* > g_vecGameObjects;
 cGameObject* g_pThePlayerGO = NULL;
 cGameObject* g_pSkyBoxObject = NULL;
 cGameObject* g_pMirrorObject = NULL;
-cGameObject* g_pTheCameraDummy = NULL;	// USED FOR ROTATING THE CAMERAS
+cGameObject* g_pTheCamera2Dummy = NULL;	// USED FOR ROTATING THE CAMERAS
+cGameObject* g_pTheCamera3Dummy = NULL;	// USED FOR ROTATING THE CAMERAS
 
 cGameObject* g_pTVScreen1 = NULL;
 cGameObject* g_pTVScreen2 = NULL;
@@ -81,6 +97,11 @@ cMouseCamera* g_pTheMouseCamera = NULL;
 float g_lastX = 0.0f;
 float g_lastZ = 0.0f;
 bool g_firstMouse = true;
+
+cMouseCamera* g_pTheCamera0 = NULL;	// Maybe for the TVs scene
+cMouseCamera* g_pTheCamera1 = NULL; // The starting Camera
+cMouseCamera* g_pTheCamera2 = NULL; // 2nd Question Camera
+cMouseCamera* g_pTheCamera3 = NULL; // 3rd Question Camera
 
 cVAOMeshManager*	g_pVAOManager = 0;		// or NULL or nullptr
 
@@ -382,8 +403,27 @@ int main( void )
 
 	::g_pThePlayerGO = findObjectByFriendlyName( PLAYERNAME, ::g_vecGameObjects );
 
+	//glm::vec3 camPos = ::g_pThePlayerGO->position + glm::vec3( -8.0f, 2.0f, -8.0f );
+	//::g_pTheMouseCamera = new cMouseCamera( camPos, glm::vec3( 0.0f, 1.0f, 0.0f ), 45.f, -5.0f );
+
+	//// CREATING THE CAMERAS > ------------------------------
+	// The Starting Camera
 	glm::vec3 camPos = ::g_pThePlayerGO->position + glm::vec3( -8.0f, 2.0f, -8.0f );
-	::g_pTheMouseCamera = new cMouseCamera( camPos, glm::vec3( 0.0f, 1.0f, 0.0f ), 45.f, -5.0f );
+	::g_pTheCamera1 = new cMouseCamera( camPos, glm::vec3( 0.0f, 1.0f, 0.0f ), 45.f, -5.0f );
+	::g_pTheMouseCamera = ::g_pTheCamera1;	// SETTING IT TO DEFAULT CAMERA
+
+											// 2nd Question Camera
+	camPos = ::g_pThePlayerGO->position + glm::vec3( -8.0f, 2.0f, -8.0f );
+	::g_pTheCamera2 = new cMouseCamera( camPos, glm::vec3( 0.0f, 1.0f, 0.0f ), 45.f, -10.0f );
+	::g_pTheCamera2->Target = ::g_pTheCamera2Dummy;
+
+	// 3rd Question Camera
+	camPos = ::g_pThePlayerGO->position + glm::vec3( -4.0f, 2.0f, -4.0f );
+	::g_pTheCamera3 = new cMouseCamera( camPos, glm::vec3( 0.0f, 1.0f, 0.0f ), 45.f, -5.0f );
+	::g_pTheCamera3->Target = ::g_pTheCamera3Dummy;
+	//// ------------------------------ < CREATING THE CAMERAS 
+
+
 
 	glEnable( GL_DEPTH );
 
@@ -677,33 +717,29 @@ int main( void )
 
 
 		//=====================================================
-		// The Camera adjustmentments  
-		if( ::g_theQuestionNumber == 2 || ::g_theQuestionNumber == 3 )
+		// The Camera adjustmentments
 		{	
-
-			if( ::g_theQuestionNumber == 2 )
+			//-----------------------g_pTheCamera2-----------------------
+			float frameAdjust = 0.25f * ( float )deltaTime;
+			::g_pTheCamera2Dummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, frameAdjust, 0.0f ) );
+			::g_pTheCamera2->moveCamera();
+			
+			//-----------------------g_pTheCamera3-----------------------
+			::g_camera3Timer += ( float )deltaTime;
+			if( ::g_camera3Timer >= 2.0f )
 			{
-				float frameAdjust = 0.25f * ( float )deltaTime;
-				::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, frameAdjust, 0.0f ) );
+				::g_camera3Timer = 0.0f;
+				::g_pTheCamera3Dummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, glm::radians(90.0f), 0.0f ) );
 			}
-			else
-			{
-				::g_camera3Timer += ( float )deltaTime;
-				if( ::g_camera3Timer >= 2.0f )
-				{
-					::g_camera3Timer = 0.0f;
-					::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, glm::radians(90.0f), 0.0f ) );
-				}
-			}
-
 			// No need to update the camera if nothing has changed
-			if( ::g_pTheCameraDummy->qOrientation != ::g_pTheCameraDummy->prevOrientation )
+			if( ::g_pTheCamera3Dummy->qOrientation != ::g_pTheCamera3Dummy->prevOrientation )
 			{
-				::g_pTheMouseCamera->moveCamera();
+				::g_pTheCamera3->moveCamera();
 			}
-			::g_pTheCameraDummy->prevOrientation = ::g_pTheCameraDummy->qOrientation;
+			::g_pTheCamera3Dummy->prevOrientation = ::g_pTheCamera3Dummy->qOrientation;			
 		}
-		else
+		
+		if( ::g_theQuestionNumber != 2 && ::g_theQuestionNumber != 3 )
 		{
 			// Update camera
 			ProcessCameraInput( ::g_pGLFWWindow, deltaTime );
@@ -889,8 +925,10 @@ void mouse_callback( GLFWwindow* window, double xpos, double zpos )
 
 	float rateOfTurn = xoffset * -0.01;
 
-	//::g_pTheBall->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, rateOfTurn, 0.0f ) );
-	::g_pTheMouseCamera->ProcessMouseMovement( xoffset, zoffset );
+	if( ::g_theQuestionNumber != 2 && ::g_theQuestionNumber != 3 )
+	{
+		::g_pTheMouseCamera->ProcessMouseMovement( xoffset, zoffset );
+	}
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
