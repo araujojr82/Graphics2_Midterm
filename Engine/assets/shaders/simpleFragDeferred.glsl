@@ -320,11 +320,11 @@ void main()
 		case PASS_2_FULL_SCREEN_EFFECT_PASS:	
 		{			
 
-			vec2 newFU_X2 = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
+			vec2 textCoords2 = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
 
-			fragOut.colour.rgb = texture( fullRenderedImage2D, newFU_X2).rgb;
+			fragOut.colour.rgb = texture( fullRenderedImage2D, textCoords2).rgb;
 			fragOut.colour.a = 1.0f;
-			fragOut.colour.r = 1.0f;
+			//fragOut.colour.r = 1.0f;
 
 		}
 		break;	// end of pass PASS3
