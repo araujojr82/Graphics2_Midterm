@@ -223,7 +223,7 @@ void render1stPass( GLint theShaderID, cFBO theOutputFBO, std::vector<cGameObjec
 ////#####################################################################################
 void render2ndPass( GLint theShaderID, cFBO theSourceFBO, cFBO theOutputFBO,
 					cGameObject* theRenderedObject,
-					double deltaTime, int width, int height ) //cMouseCamera* theCamera )					
+					double deltaTime, int &width, int &height ) //cMouseCamera* theCamera )					
 {
 	// Render it again, but point the the FBO texture... 
 
@@ -277,7 +277,7 @@ void render2ndPass( GLint theShaderID, cFBO theSourceFBO, cFBO theOutputFBO,
 ////// Drawing the image from the second pass to the whole screen
 ////#####################################################################################
 void render3rdPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRenderedObject,
-					double deltaTime, int width, int height ) //cMouseCamera* theCamera )					
+					double deltaTime, int &width, int &height ) //cMouseCamera* theCamera )					
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -318,7 +318,7 @@ void render3rdPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRender
 ////// Drawing the image from the second pass to a TV screen
 ////#####################################################################################
 void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScreenObject, 
-					   double deltaTime, int width, int height )
+					   double deltaTime, int &width, int &height )
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );	
 
@@ -342,7 +342,7 @@ void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScr
 	// Pick a texture unit... 
 	unsigned int pass2unit = 50;
 	glActiveTexture( GL_TEXTURE0 + pass2unit );
-	glBindTexture( GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID );
+	glBindTexture( GL_TEXTURE_2D, theSourceFBO.colourTexture_0_ID );
 	glUniform1i( fullRenderedImage2D_LocID, pass2unit );
 
 	std::vector< cGameObject* >  vecCopy4thPass;
@@ -662,28 +662,30 @@ int main( void )
 
 			RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
 		}
-		else		
+		else
 		{	// Using the Deferred Renderer
-			//////// -----------> The First Pass
-			//////// Drawing the objects into Colour, Normal, Position images
-			render1stPass( sexyShaderID, g_FBO_Pass1_G_Buffer, ::g_vecGameObjects,
+
+			//cFBO g_FBO_CameraA_Pass1;
+			//cFBO g_FBO_CameraA_Pass2;
+			//cFBO g_FBO_CameraB_Pass1;
+			//cFBO g_FBO_CameraB_Pass2;
+
+			//// The First Pass -> Drawing the objects into Colour, Normal, Position images
+			render1stPass( sexyShaderID, g_FBO_CameraA_Pass1, ::g_vecGameObjects,
 						   deltaTime, ::g_pTheMouseCamera );
 
-			////// -----------> The Second Pass
-			////// Drawing the first image Colour / Normal / Position into a single image
-			render2ndPass( sexyShaderID, g_FBO_Pass1_G_Buffer, g_FBO_Pass2_Deferred,
+			//// The Second Pass -> Drawing the first image Colour / Normal / Position into a single image
+			render2ndPass( sexyShaderID, g_FBO_CameraA_Pass1, g_FBO_CameraA_Pass2,
 						   g_pSkyBoxObject, deltaTime, width, height ); //cMouseCamera* theCamera )		
 			
-			////// -----------> The Third Pass
-			////// Drawing the image from the second pass to the whole screen
-			render3rdPass( sexyShaderID, ::g_FBO_Pass2_Deferred, ::g_pSkyBoxObject,
+			//// The Third Pass -> Drawing the image from the second pass to the whole screen
+			render3rdPass( sexyShaderID, ::g_FBO_CameraA_Pass2, ::g_pSkyBoxObject,
 						   deltaTime, width, height ); //cMouseCamera* theCamera )
 
-			////// -----------> The Fourth Pass
-			////// Drawing the image from the second pass to a TV screen
+			//// The Fourth Pass -> Drawing the image from the second pass to a TV screen
 			//if(  )
-			drawTVScreenPass( sexyShaderID, g_FBO_Pass2_Deferred, ::g_pTVScreen1, deltaTime, width, height );
-			drawTVScreenPass( sexyShaderID, g_FBO_Pass2_Deferred, ::g_pTVScreen2, deltaTime, width, height );
+			drawTVScreenPass( sexyShaderID, g_FBO_CameraA_Pass2, ::g_pTVScreen1, deltaTime, width, height );
+			drawTVScreenPass( sexyShaderID, g_FBO_CameraA_Pass2, ::g_pTVScreen2, deltaTime, width, height );
 		}
 
 		//=====================================================
