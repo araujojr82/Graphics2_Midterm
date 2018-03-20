@@ -47,7 +47,6 @@ uniform float ambientToDiffuseRatio; 	// Maybe	// 0.2 or 0.3
 uniform vec4 materialSpecular;  // rgb = colour of HIGHLIGHT only
 								// w = shininess of the 
 
-
 layout(std140) uniform NUB_perFrame
 {
 	vec3 eyePosition;	// Camera position
@@ -141,6 +140,9 @@ uniform sampler2D fullRenderedImage2D;
 
 uniform float screenWidth;
 uniform float screenHeight;
+
+uniform int staticOffsetNumber;
+uniform int staticOn;
 
 
 // This function has now been moved to the bottom of the file...
@@ -331,10 +333,40 @@ void main()
 
 		case 3:
 		{
+			if( staticOn == 1 )
+			{
+				//vec2 textCoords2 = vec2( staticOffsetNumber / screenWidth, staticOffsetNumber / screenHeight );
+				vec2 textCoords2 = vec2( ( fUV_X2.x / screenWidth ) + staticOffsetNumber,
+										 ( fUV_X2.y / screenHeight ) + staticOffsetNumber );
 
-			fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
-			fragOut.colour.a = 1.0f;		
-			fragOut.colour.r = 1.0f;
+				vec3 newColor = texture( fullRenderedImage2D, textCoords2 ).rgb;
+
+				fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
+
+				fragOut.colour.rgb = fragOut.colour.rgb * 0.10f +
+									 newColor.rgb * 0.90f;
+
+				////// Make it  black and white (well, "greyscale"
+				//float Y = (0.2126 * fragOut.colour.r) + 
+				//		  (0.7152 * fragOut.colour.g) + 
+				//		  (0.0722 * fragOut.colour.b);
+				//fragOut.colour.rgb = vec3(Y,Y,Y);
+
+			}
+			else
+			{
+				fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
+				//fragOut.colour.a = 1.0f;		
+				//fragOut.colour.r = 1.0f;
+
+				//// Make it  black and white (well, "greyscale"
+				//float Y = (0.2126 * fragOut.colour.r) + 
+				//		  (0.7152 * fragOut.colour.g) + 
+				//		  (0.0722 * fragOut.colour.b);
+				//fragOut.colour.rgb = vec3(Y,Y,Y);
+			}
+			fragOut.colour.a = 1.0f;	
+
 
 		}
 		break;

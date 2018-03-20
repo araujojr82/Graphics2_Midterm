@@ -17,11 +17,22 @@ extern GLint g_renderID;
 
 extern bool g_outline;
 
+extern bool TVAChannel;
+
+extern float TVAStaticCount;
+
 /*static*/ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods )
 {
 
 	if( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS )
 		glfwSetWindowShouldClose( window, GLFW_TRUE );
+
+	if( key == GLFW_KEY_TAB && action == GLFW_PRESS )
+	{
+		TVAChannel = !TVAChannel;
+		TVAStaticCount = 0.0f;
+	}
+		
 
 	if( key == GLFW_KEY_9 && action == GLFW_PRESS )
 	{
