@@ -366,8 +366,8 @@ void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScr
 	unsigned int pass2unit = fullScreenID;
 	glActiveTexture( GL_TEXTURE0 + pass2unit );
 	glBindTexture( GL_TEXTURE_2D, theSourceFBO.colourTexture_0_ID );
-	//glUniform1i( fullRenderedImage2D_LocID, pass2unit );
-	glUniform1i( fullRenderedImage2D_LocID, ::g_renderID );
+	glUniform1i( fullRenderedImage2D_LocID, pass2unit );
+	//glUniform1i( fullRenderedImage2D_LocID, ::g_renderID );
 
 	std::vector< cGameObject* >  vecCopy4thPass;
 	vecCopy4thPass.push_back( theScreenObject );
