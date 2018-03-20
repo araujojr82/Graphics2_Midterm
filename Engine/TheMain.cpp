@@ -276,7 +276,7 @@ void render2ndPass( GLint theShaderID, cFBO theSourceFBO, cFBO theOutputFBO,
 ////// -----------> The Third Pass
 ////// Drawing the image from the second pass to the whole screen
 ////#####################################################################################
-void render2ndPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRenderedObject,
+void render3rdPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRenderedObject,
 					double deltaTime, int width, int height ) //cMouseCamera* theCamera )					
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -676,7 +676,7 @@ int main( void )
 			
 			////// -----------> The Third Pass
 			////// Drawing the image from the second pass to the whole screen
-			render2ndPass( sexyShaderID, ::g_FBO_Pass2_Deferred, ::g_pSkyBoxObject,
+			render3rdPass( sexyShaderID, ::g_FBO_Pass2_Deferred, ::g_pSkyBoxObject,
 						   deltaTime, width, height ); //cMouseCamera* theCamera )
 
 			////// -----------> The Fourth Pass
