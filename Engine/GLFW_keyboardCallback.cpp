@@ -23,9 +23,19 @@ extern bool g_outline;
 	if( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS )
 		glfwSetWindowShouldClose( window, GLFW_TRUE );
 
+	if( key == GLFW_KEY_9 && action == GLFW_PRESS )
+	{
+		::g_renderID--;
+		std::cout << "Screen Text ID: " << g_renderID << std::endl;
+	}
+		
+
 	if( key == GLFW_KEY_0 && action == GLFW_PRESS )
-		::g_renderID++;	
-	
+	{
+		::g_renderID++;
+		std::cout << "Screen Text ID: " << g_renderID << std::endl;
+	}
+
 	if( key == GLFW_KEY_ENTER && action == GLFW_PRESS )
 	{
 		::g_bIsWireframe = !::g_bIsWireframe;

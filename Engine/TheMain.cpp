@@ -199,11 +199,12 @@ static void error_callback( int error, const char* description )
 //////// Drawing the objects into Colour, Normal, Position images
 //////#####################################################################################
 void render1stPass( GLint theShaderID, cFBO theOutputFBO, std::vector<cGameObject*> theGOVector,
-					   double deltaTime, cMouseCamera* theCamera )
-{	
+					double deltaTime, cMouseCamera* theCamera )
+{
+	cMouseCamera* tempPointer = ::g_pTheMouseCamera;
 	::g_pTheMouseCamera = theCamera;	// Change camera before rendering the scene
 
-	// Direct everything to the FBO
+										// Direct everything to the FBO
 	GLint renderPassNumber_LocID = glGetUniformLocation( theShaderID, "renderPassNumber" );
 	glUniform1i( renderPassNumber_LocID, RENDER_PASS_0_G_BUFFER_PASS );
 
@@ -213,6 +214,8 @@ void render1stPass( GLint theShaderID, cFBO theOutputFBO, std::vector<cGameObjec
 	theOutputFBO.clearBuffers();
 
 	RenderScene( theGOVector, ::g_pGLFWWindow, deltaTime );
+	
+	::g_pTheMouseCamera = tempPointer;
 
 	return;
 }
@@ -223,8 +226,11 @@ void render1stPass( GLint theShaderID, cFBO theOutputFBO, std::vector<cGameObjec
 ////#####################################################################################
 void render2ndPass( GLint theShaderID, cFBO theSourceFBO, cFBO theOutputFBO,
 					cGameObject* theRenderedObject,
-					double deltaTime, int &width, int &height ) //cMouseCamera* theCamera )					
+					double deltaTime, int &width, int &height, cMouseCamera* theCamera )
 {
+	cMouseCamera* tempPointer = ::g_pTheMouseCamera;
+	::g_pTheMouseCamera = theCamera;	// Change camera before rendering the scene
+
 	// Render it again, but point the the FBO texture... 
 
 	glBindFramebuffer( GL_FRAMEBUFFER, theOutputFBO.ID );
@@ -269,6 +275,8 @@ void render2ndPass( GLint theShaderID, cFBO theSourceFBO, cFBO theOutputFBO,
 	vecCopy2ndPass.push_back( theRenderedObject );
 	RenderScene( vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
 
+	::g_pTheMouseCamera = tempPointer;
+
 	return;
 }
 
@@ -277,8 +285,11 @@ void render2ndPass( GLint theShaderID, cFBO theSourceFBO, cFBO theOutputFBO,
 ////// Drawing the image from the second pass to the whole screen
 ////#####################################################################################
 void render3rdPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRenderedObject,
-					double deltaTime, int &width, int &height ) //cMouseCamera* theCamera )					
+					double deltaTime, int &width, int &height, cMouseCamera* theCamera )
 {
+	cMouseCamera* tempPointer = ::g_pTheMouseCamera;
+	::g_pTheMouseCamera = theCamera;	// Change camera before rendering the scene
+
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -310,6 +321,8 @@ void render3rdPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRender
 	vecCopy3rdPass.push_back( theRenderedObject );
 	RenderScene( vecCopy3rdPass, ::g_pGLFWWindow, deltaTime );
 
+	::g_pTheMouseCamera = tempPointer;
+
 	return;
 }
 
@@ -317,10 +330,13 @@ void render3rdPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRender
 ////// -----------> The Fourth Pass
 ////// Drawing the image from the second pass to a TV screen
 ////#####################################################################################
-void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScreenObject, 
-					   double deltaTime, int &width, int &height )
+void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScreenObject,
+					   double deltaTime, int &width, int &height, cMouseCamera* theCamera )
 {
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );	
+	cMouseCamera* tempPointer = ::g_pTheMouseCamera;
+	::g_pTheMouseCamera = theCamera;	// Change camera before rendering the scene
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
@@ -348,6 +364,8 @@ void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScr
 	std::vector< cGameObject* >  vecCopy4thPass;
 	vecCopy4thPass.push_back( theScreenObject );
 	RenderScene( vecCopy4thPass, ::g_pGLFWWindow, deltaTime );
+
+	::g_pTheMouseCamera = tempPointer;
 
 	return;
 }
@@ -499,7 +517,7 @@ int main( void )
 	// Change Other lights parameters==========================
 	{
 		::g_pLightManager->vecLights[0].position = glm::vec3( 100.0, 200.0f, -100.0f );
-				
+
 		::g_pLightManager->vecLights[0].attenuation.y = 0.001f;	// Linear
 		::g_pLightManager->vecLights[0].attenuation.z = 0.0f;	// Quadractic
 	}
@@ -676,41 +694,41 @@ int main( void )
 
 			//// The Second Pass -> Drawing the first image Colour / Normal / Position into a single image
 			render2ndPass( sexyShaderID, g_FBO_CameraA_Pass1, g_FBO_CameraA_Pass2,
-						   g_pSkyBoxObject, deltaTime, width, height ); //cMouseCamera* theCamera )		
-			
+						   g_pSkyBoxObject, deltaTime, width, height, ::g_pTheMouseCamera );
+
 			//// The Third Pass -> Drawing the image from the second pass to the whole screen
 			render3rdPass( sexyShaderID, ::g_FBO_CameraA_Pass2, ::g_pSkyBoxObject,
-						   deltaTime, width, height ); //cMouseCamera* theCamera )
+							deltaTime, width, height, ::g_pTheMouseCamera );
 
-			//// The Fourth Pass -> Drawing the image from the second pass to a TV screen
-			//if(  )
-			drawTVScreenPass( sexyShaderID, g_FBO_CameraA_Pass2, ::g_pTVScreen1, deltaTime, width, height );
-			drawTVScreenPass( sexyShaderID, g_FBO_CameraA_Pass2, ::g_pTVScreen2, deltaTime, width, height );
+													   //// The Fourth Pass -> Drawing the image from the second pass to a TV screen
+													   //if(  )
+			drawTVScreenPass( sexyShaderID, g_FBO_CameraA_Pass2, ::g_pTVScreen1, deltaTime, width, height, ::g_pTheMouseCamera );
+			drawTVScreenPass( sexyShaderID, g_FBO_CameraA_Pass2, ::g_pTVScreen2, deltaTime, width, height, ::g_pTheMouseCamera );
 		}
 
 		//=====================================================
 		// The Camera adjustmentments
-		{	
+		{
 			//-----------------------g_pTheCamera2-----------------------
 			float frameAdjust = 0.25f * ( float )deltaTime;
 			::g_pTheCamera2Dummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, frameAdjust, 0.0f ) );
 			::g_pTheCamera2->moveCamera();
-			
+
 			//-----------------------g_pTheCamera3-----------------------
 			::g_camera3Timer += ( float )deltaTime;
 			if( ::g_camera3Timer >= 2.0f )
 			{
 				::g_camera3Timer = 0.0f;
-				::g_pTheCamera3Dummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, glm::radians(90.0f), 0.0f ) );
+				::g_pTheCamera3Dummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, glm::radians( 90.0f ), 0.0f ) );
 			}
 			// No need to update the camera if nothing has changed
 			if( ::g_pTheCamera3Dummy->qOrientation != ::g_pTheCamera3Dummy->prevOrientation )
 			{
 				::g_pTheCamera3->moveCamera();
 			}
-			::g_pTheCamera3Dummy->prevOrientation = ::g_pTheCamera3Dummy->qOrientation;			
+			::g_pTheCamera3Dummy->prevOrientation = ::g_pTheCamera3Dummy->qOrientation;
 		}
-		
+
 		if( ::g_theQuestionNumber != 2 && ::g_theQuestionNumber != 3 )
 		{
 			// Update camera
@@ -727,7 +745,7 @@ int main( void )
 		//::g_pSkyBoxObject->GetPhysState( skyBoxPP );
 		//skyBoxPP.position = ::g_pTheCamera->getEyePosition();
 		//::g_pSkyBoxObject->SetPhysState( skyBoxPP );
-//		::g_pSkyBoxObject->position = ::g_pTheMouseCamera->Position;
+		//		::g_pSkyBoxObject->position = ::g_pTheMouseCamera->Position;
 
 
 		std::stringstream ssTitle;

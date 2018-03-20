@@ -158,7 +158,7 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.name = "tv";
 		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
 		pTempGO->vecMeshes.push_back( meshInfo );
-		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+		//::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
 		::g_vecGameObjectsForTVscene.push_back( pTempGO );	// ADDING IT TO THE SCENE VECTOR
 
 	}
@@ -223,8 +223,8 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.name = "tv";
 		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
 		pTempGO->vecMeshes.push_back( meshInfo );
-		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
-		::g_vecGameObjectsForTVscene.push_back( pTempGO );	// ADDING IT TO THE SCENE VECTOR
+		//::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+		//::g_vecGameObjectsForTVscene.push_back( pTempGO );	// ADDING IT TO THE SCENE VECTOR
 
 	}
 

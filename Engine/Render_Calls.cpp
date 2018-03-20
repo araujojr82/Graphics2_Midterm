@@ -85,8 +85,7 @@ void window_size_callback( GLFWwindow* window, int width, int height )
 
 
 	// MOOOOOOOOOOORE!!!
-
-	;
+	
 	if( ( ::g_FBO_CameraA_Pass1.width != width ) || ( ::g_FBO_CameraA_Pass1.height != height ) )
 	{
 		// Window size has changed, so resize the offscreen frame buffer object
@@ -101,7 +100,7 @@ void window_size_callback( GLFWwindow* window, int width, int height )
 			std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
 		}
 	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
-	;
+	
 	if( ( ::g_FBO_CameraA_Pass2.width != width ) || ( ::g_FBO_CameraA_Pass2.height != height ) )
 	{
 		// Window size has changed, so resize the offscreen frame buffer object
