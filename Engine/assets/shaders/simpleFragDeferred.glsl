@@ -324,7 +324,7 @@ void main()
 
 			fragOut.colour.rgb = texture( fullRenderedImage2D, textCoords2).rgb;
 			fragOut.colour.a = 1.0f;
-			//fragOut.colour.r = 1.0f;
+//			fragOut.colour.r = 1.0f;
 
 		}
 		break;	// end of pass PASS3
@@ -334,6 +334,7 @@ void main()
 
 			fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
 			fragOut.colour.a = 1.0f;		
+			fragOut.colour.r = 1.0f;
 
 		}
 		break;

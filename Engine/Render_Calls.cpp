@@ -22,8 +22,8 @@ extern cFBO g_FBO_Pass1_G_Buffer;
 extern cFBO g_FBO_Pass2_Deferred;
 extern cFBO g_FBO_CameraA_Pass1;
 extern cFBO g_FBO_CameraA_Pass2;
-extern cFBO g_FBO_CameraB_Pass1;
-extern cFBO g_FBO_CameraB_Pass2;
+//extern cFBO g_FBO_CameraB_Pass1;
+//extern cFBO g_FBO_CameraB_Pass2;
 
 
 // Draw a single object
@@ -116,35 +116,35 @@ void window_size_callback( GLFWwindow* window, int width, int height )
 		}
 	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
 	
-	if( ( ::g_FBO_CameraB_Pass1.width != width ) || ( ::g_FBO_CameraB_Pass1.height != height ) )
-	{
-		// Window size has changed, so resize the offscreen frame buffer object
-		std::string error;
-		if( !::g_FBO_CameraB_Pass1.reset( width, height, error ) )
-		{
-			std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
-			std::cout << "\t" << error << std::endl;
-		}
-		else
-		{
-			std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
-		}
-	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
-	
-	if( ( ::g_FBO_CameraB_Pass2.width != width ) || ( ::g_FBO_CameraB_Pass2.height != height ) )
-	{
-		// Window size has changed, so resize the offscreen frame buffer object
-		std::string error;
-		if( !::g_FBO_CameraB_Pass2.reset( width, height, error ) )
-		{
-			std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
-			std::cout << "\t" << error << std::endl;
-		}
-		else
-		{
-			std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
-		}
-	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
+	//if( ( ::g_FBO_CameraB_Pass1.width != width ) || ( ::g_FBO_CameraB_Pass1.height != height ) )
+	//{
+	//	// Window size has changed, so resize the offscreen frame buffer object
+	//	std::string error;
+	//	if( !::g_FBO_CameraB_Pass1.reset( width, height, error ) )
+	//	{
+	//		std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
+	//		std::cout << "\t" << error << std::endl;
+	//	}
+	//	else
+	//	{
+	//		std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
+	//	}
+	//}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
+	//
+	//if( ( ::g_FBO_CameraB_Pass2.width != width ) || ( ::g_FBO_CameraB_Pass2.height != height ) )
+	//{
+	//	// Window size has changed, so resize the offscreen frame buffer object
+	//	std::string error;
+	//	if( !::g_FBO_CameraB_Pass2.reset( width, height, error ) )
+	//	{
+	//		std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
+	//		std::cout << "\t" << error << std::endl;
+	//	}
+	//	else
+	//	{
+	//		std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
+	//	}
+	//}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
 
 
 
