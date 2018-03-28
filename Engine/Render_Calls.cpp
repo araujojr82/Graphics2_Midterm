@@ -22,8 +22,8 @@ extern cFBO g_FBO_Pass1_G_Buffer;
 extern cFBO g_FBO_Pass2_Deferred;
 extern cFBO g_FBO_CameraA_Pass1;
 extern cFBO g_FBO_CameraA_Pass2;
-//extern cFBO g_FBO_CameraB_Pass1;
-//extern cFBO g_FBO_CameraB_Pass2;
+extern cFBO g_FBO_CameraB_Pass1;
+extern cFBO g_FBO_CameraB_Pass2;
 
 
 // Draw a single object
@@ -116,35 +116,35 @@ void window_size_callback( GLFWwindow* window, int width, int height )
 		}
 	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
 	
-	//if( ( ::g_FBO_CameraB_Pass1.width != width ) || ( ::g_FBO_CameraB_Pass1.height != height ) )
-	//{
-	//	// Window size has changed, so resize the offscreen frame buffer object
-	//	std::string error;
-	//	if( !::g_FBO_CameraB_Pass1.reset( width, height, error ) )
-	//	{
-	//		std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
-	//		std::cout << "\t" << error << std::endl;
-	//	}
-	//	else
-	//	{
-	//		std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
-	//	}
-	//}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
-	//
-	//if( ( ::g_FBO_CameraB_Pass2.width != width ) || ( ::g_FBO_CameraB_Pass2.height != height ) )
-	//{
-	//	// Window size has changed, so resize the offscreen frame buffer object
-	//	std::string error;
-	//	if( !::g_FBO_CameraB_Pass2.reset( width, height, error ) )
-	//	{
-	//		std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
-	//		std::cout << "\t" << error << std::endl;
-	//	}
-	//	else
-	//	{
-	//		std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
-	//	}
-	//}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
+	if( ( ::g_FBO_CameraB_Pass1.width != width ) || ( ::g_FBO_CameraB_Pass1.height != height ) )
+	{
+		// Window size has changed, so resize the offscreen frame buffer object
+		std::string error;
+		if( !::g_FBO_CameraB_Pass1.reset( width, height, error ) )
+		{
+			std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
+			std::cout << "\t" << error << std::endl;
+		}
+		else
+		{
+			std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
+		}
+	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
+	
+	if( ( ::g_FBO_CameraB_Pass2.width != width ) || ( ::g_FBO_CameraB_Pass2.height != height ) )
+	{
+		// Window size has changed, so resize the offscreen frame buffer object
+		std::string error;
+		if( !::g_FBO_CameraB_Pass2.reset( width, height, error ) )
+		{
+			std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
+			std::cout << "\t" << error << std::endl;
+		}
+		else
+		{
+			std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
+		}
+	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
 
 
 
@@ -450,30 +450,108 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 
 
 
-	//	cShaderManager::cShaderProgram* pShaderProgram = ::g_pShaderManager->getShaderProgPointerFromID( curShaderProgID );
-	//	if ( pShaderProgram )
-	//	{
-	//		pShaderProgram->set2DTextureBindings( theMesh.vecMehs2DTextures, ::g_pTextureManager );
-	//	}
-
-	// Set ALL the samplers to something (so they don't point to GL_TEXTURE0)
-	QnDTexureSamplerUtility::LoadUniformLocationsIfNeeded( curShaderProgID );
-	// There's no way we have 999 texture units...
-	QnDTexureSamplerUtility::setAllSamplerUnitsToInvalidNumber( 999 );
-	QnDTexureSamplerUtility::clearAllBlendValuesToZero();
-
-	// Now set our samplers, and blend function to something
-	// Basic texture binding setup (assign all loaded textures to samplers)
-	g_pTextureManager->UpdateTextureBindingsByTextureNameSimple();
-	std::map<std::string, CTexUnitInfoBrief> mapTexNameToTexUnit;
-	g_pTextureManager->GetBoundTextureUnitsByTextureNames( mapTexNameToTexUnit );
-
-	// Now look up what textures our object is using and set the samplers
-	QnDTexureSamplerUtility::SetSamplersForMeshTextures( theMesh, mapTexNameToTexUnit );
 
 
-	// change one of the samplers to be the FBO texture texture
-	// uniform sampler2D texSamp2D00;		// Represents a 2D image
+
+
+	// Set up cube map...
+	GLuint cubeMapNumber = ::g_pTextureManager->getTextureIDFromTextureName( "space" );
+	glActiveTexture( GL_TEXTURE31 );
+	glBindTexture( GL_TEXTURE_CUBE_MAP, cubeMapNumber );
+
+	// Set up the textures
+	std::string textureName = pTheGO->textureNames[0];
+	GLuint texture00Number
+		= ::g_pTextureManager->getTextureIDFromTextureName( textureName );
+	// Texture binding... (i.e. set the 'active' texture
+	GLuint texture00Unit = 0;							// Texture units go from 0 to 79 (at least)
+	glActiveTexture( texture00Unit + GL_TEXTURE0 );		// GL_TEXTURE0 = 33984
+	glBindTexture( GL_TEXTURE_2D, texture00Number );
+
+	// 0 
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D,
+				   ::g_pTextureManager->getTextureIDFromTextureName( pTheGO->textureNames[0] ) );
+	// 1
+	glActiveTexture( GL_TEXTURE1 );
+	glBindTexture( GL_TEXTURE_2D,
+				   ::g_pTextureManager->getTextureIDFromTextureName( pTheGO->textureNames[1] ) );
+
+	//// 2
+	//glActiveTexture( GL_TEXTURE2 );
+	//glBindTexture( GL_TEXTURE_2D,
+	//			   ::g_pTextureManager->getTextureIDFromTextureName( pTheGO->textureNames[2] ) );
+	// 2..  and so on... 
+
+	// Set sampler in the shader
+	// NOTE: You shouldn't be doing this during the draw call...
+	GLint textSampler00_ID = glGetUniformLocation( curShaderProgID, "texSamp2D00" );
+	GLint textSampler01_ID = glGetUniformLocation( curShaderProgID, "texSamp2D01" );
+	//GLint textSampler02_ID = glGetUniformLocation( curShaderProgID, "texSamp2D02" );
+	//// And so on (up to 10, or whatever number of textures)... 
+
+	GLint textBlend00_ID = glGetUniformLocation( curShaderProgID, "texBlend00" );
+	GLint textBlend01_ID = glGetUniformLocation( curShaderProgID, "texBlend01" );
+	//GLint textBlend02_ID = glGetUniformLocation( curShaderProgID, "texBlend02" );
+
+	GLint texSampCube00_LocID = glGetUniformLocation( curShaderProgID, "texSampCube00" );
+	GLint texSampCube01_LocID = glGetUniformLocation( curShaderProgID, "texSampCube00" );
+	GLint texSampCube02_LocID = glGetUniformLocation( curShaderProgID, "texSampCube00" );
+	GLint texSampCube03_LocID = glGetUniformLocation( curShaderProgID, "texSampCube00" );
+
+	GLint texCubeBlend00_LocID = glGetUniformLocation( curShaderProgID, "texCubeBlend00" );
+	GLint texCubeBlend01_LocID = glGetUniformLocation( curShaderProgID, "texCubeBlend01" );
+	GLint texCubeBlend02_LocID = glGetUniformLocation( curShaderProgID, "texCubeBlend02" );
+	GLint texCubeBlend03_LocID = glGetUniformLocation( curShaderProgID, "texCubeBlend03" );
+
+	glUniform1i( texSampCube00_LocID, 31 );
+	glUniform1i( texSampCube01_LocID, 31 );
+	glUniform1i( texSampCube02_LocID, 31 );
+	glUniform1i( texSampCube03_LocID, 31 );
+
+	// This connects the texture sampler to the texture units... 
+	glUniform1i( textSampler00_ID, 0 );
+	glUniform1i( textSampler01_ID, 1 );
+	//glUniform1i( textSampler02_ID, 2 );
+	// .. and so on
+
+	// And the blending values
+	glUniform1f( textBlend00_ID, pTheGO->textureBlend[0] );
+	glUniform1f( textBlend01_ID, pTheGO->textureBlend[1] );
+	//glUniform1f( textBlend02_ID, pTheGO->textureBlend[2] );
+
+
+
+
+
+
+
+
+
+	////	cShaderManager::cShaderProgram* pShaderProgram = ::g_pShaderManager->getShaderProgPointerFromID( curShaderProgID );
+	////	if ( pShaderProgram )
+	////	{
+	////		pShaderProgram->set2DTextureBindings( theMesh.vecMehs2DTextures, ::g_pTextureManager );
+	////	}
+
+	//// Set ALL the samplers to something (so they don't point to GL_TEXTURE0)
+	//QnDTexureSamplerUtility::LoadUniformLocationsIfNeeded( curShaderProgID );
+	//// There's no way we have 999 texture units...
+	//QnDTexureSamplerUtility::setAllSamplerUnitsToInvalidNumber( 999 );
+	//QnDTexureSamplerUtility::clearAllBlendValuesToZero();
+
+	//// Now set our samplers, and blend function to something
+	//// Basic texture binding setup (assign all loaded textures to samplers)
+	//g_pTextureManager->UpdateTextureBindingsByTextureNameSimple();
+	//std::map<std::string, CTexUnitInfoBrief> mapTexNameToTexUnit;
+	//g_pTextureManager->GetBoundTextureUnitsByTextureNames( mapTexNameToTexUnit );
+
+	//// Now look up what textures our object is using and set the samplers
+	//QnDTexureSamplerUtility::SetSamplersForMeshTextures( theMesh, mapTexNameToTexUnit );
+
+
+	//// change one of the samplers to be the FBO texture texture
+	//// uniform sampler2D texSamp2D00;		// Represents a 2D image
 
 
 	// ***************************************

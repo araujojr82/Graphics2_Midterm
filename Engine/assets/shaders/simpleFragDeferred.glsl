@@ -47,10 +47,10 @@ uniform float ambientToDiffuseRatio; 	// Maybe	// 0.2 or 0.3
 uniform vec4 materialSpecular;  // rgb = colour of HIGHLIGHT only
 								// w = shininess of the 
 
-layout(std140) uniform NUB_perFrame
-{
-	vec3 eyePosition;	// Camera position
-} perFramNUB;
+//layout(std140) uniform NUB_perFrame
+//{
+//	vec3 eyePosition;	// Camera position
+//} perFramNUB;
 
 /*****************************************************/
 struct sLightDesc {
@@ -77,7 +77,7 @@ uniform sLightDesc myLight[NUMBEROFLIGHTS];
 
 uniform int theLightId;
 
-//uniform vec3 eyePosition;	// Camera position
+uniform vec3 eyePosition;	// Camera position
 
 uniform bool bIsDebugWireFrameObject;
 
@@ -211,13 +211,13 @@ void main()
 				// Have "eyePosition" (camera eye) in WORLD space
 		
 				// reFLECTion value 
-				vec3 vecReflectEyeToVertex = fVecWorldPosition - perFramNUB.eyePosition;
+				vec3 vecReflectEyeToVertex = fVecWorldPosition - eyePosition; //perFramNUB.eyePosition;
 				vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
 				vec3 vecReflect = reflect( vecReflectEyeToVertex, fVertNormal.xyz );
 				// Look up colour for reflection
 				vec4 rgbReflection = texture( texSampCube00, fVertNormal.xyz );
 	
-				vec3 vecReFRACT_EyeToVertex = perFramNUB.eyePosition - fVecWorldPosition;
+				vec3 vecReFRACT_EyeToVertex = eyePosition - fVecWorldPosition;	//perFramNUB.eyePosition - fVecWorldPosition;
 				vecReFRACT_EyeToVertex = normalize(vecReFRACT_EyeToVertex);				
 				vec3 vecRefract = refract( vecReFRACT_EyeToVertex, fVertNormal.xyz, 
 										   coefficientRefract );
@@ -314,8 +314,8 @@ void main()
 															materialSpecular );
 				}
 				fragOut.colour.a = 1.0f;
-				//fragOut.colour.r = fragOut.colour.r + 0.5f;
 			}
+			//fragOut.colour.r = fragOut.colour.r + 0.5f;
 		}
 		break;	
 	
@@ -437,7 +437,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 	
 	// Vector from vertex to eye 
 	// i.e. this makes the vector base effectively at zero.
-	vec3 viewVector = normalize( perFramNUB.eyePosition - vecWorldPosition );
+	vec3 viewVector = normalize( eyePosition - vecWorldPosition ); // perFramNUB.eyePosition - vecWorldPosition );
 	vec3 vecLightReflection = reflect( normalize(lightVector), vecNormal );
 	
 	float specularShininess = matSpecular.w;	// 64.0f

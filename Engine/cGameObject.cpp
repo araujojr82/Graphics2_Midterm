@@ -31,11 +31,11 @@ cGameObject::cGameObject()
 	
 	this->myLight = NULL;
 	
-	//// Set all texture blend values to 0.0f (meaning NO texture)
-	//for( int index = 0; index != NUMTEXTURES; index++ )
-	//{
-	//	this->textureBlend[index] = 0.0f;
-	//}
+	// Set all texture blend values to 0.0f (meaning NO texture)
+	for( int index = 0; index != NUMTEXTURES; index++ )
+	{
+		this->textureBlend[index] = 0.0f;
+	}
 
 	// Assign unque ID, the increment for next created object
 	// (Note: if you write your own copy constructor, be sure to COPY this
