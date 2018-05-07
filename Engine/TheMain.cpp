@@ -205,7 +205,7 @@ void render3rdPass( GLint theShaderID, cFBO theSourceFBO,
 
 void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScreenObject,
 					   double deltaTime, int &width, int &height, cMouseCamera* theCamera,
-					   int fullScreenID );
+					   int fullScreenID, bool isFirstTV );
 
 
 void renderSceneFromCamera( cFBO theSourceFBO, cFBO theOutputFBO,
@@ -599,20 +599,20 @@ int main( void )
 				{
 					if( TVAChannel )
 						drawTVScreenPass( currentProgID, ::g_FBO_CameraA_Pass2, ::g_pTVScreen1,	
-										  deltaTime, width, height, ::g_pTheMouseCamera, 55 );
+										  deltaTime, width, height, ::g_pTheMouseCamera, 55, true );
 					else
 						drawTVScreenPass( currentProgID, ::g_FBO_CameraB_Pass2, ::g_pTVScreen1,
-										  deltaTime, width, height, ::g_pTheMouseCamera, 55 );
+										  deltaTime, width, height, ::g_pTheMouseCamera, 55, true );
 				}
 
 				if( TVBStatus )
 				{
 					if( TVBChannel )
 						drawTVScreenPass( currentProgID, ::g_FBO_CameraA_Pass2, ::g_pTVScreen2,
-										  deltaTime, width, height, ::g_pTheMouseCamera, 56 );
+										  deltaTime, width, height, ::g_pTheMouseCamera, 56, false );
 					else
 						drawTVScreenPass( currentProgID, ::g_FBO_CameraB_Pass2, ::g_pTVScreen2,
-										  deltaTime, width, height, ::g_pTheMouseCamera, 56 );
+										  deltaTime, width, height, ::g_pTheMouseCamera, 56, false );
 				}
 			}
 		}
@@ -1129,7 +1129,7 @@ void render3rdPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theRender
 ////#####################################################################################
 void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScreenObject,
 					   double deltaTime, int &width, int &height, cMouseCamera* theCamera, 
-					   int fullScreenID )
+					   int fullScreenID, bool isFirstTV )
 {
 	::g_pShaderManager->useShaderProgram( "mySexyShader" );
 
@@ -1151,23 +1151,41 @@ void drawTVScreenPass( GLint theShaderID, cFBO theSourceFBO, cGameObject* theScr
 	glBindTexture( GL_TEXTURE_2D, theSourceFBO.colourTexture_0_ID );
 	glUniform1i( fullRenderedImage2D_LocID, pass2unit2 );
 
-	if( TVAStaticCount < 2.0 )
+	GLboolean staticOn = false;
+	GLint staticOffset = 0;
+
+	if( isFirstTV )
 	{
-		TVAStaticCount += deltaTime;
-		TVAStaticOffset = ( int )generateRandomNumber( 0, 767 );
-		TVBStaticOffset = 1;
+		if( TVAStaticCount < 2.0 )
+		{
+			TVAStaticCount += deltaTime;
+			TVAStaticOffset = ( int )generateRandomNumber( 0, 767 );
+			staticOn = true;
+		}
+		else
+			TVAStaticOffset = 0;
+
+		staticOffset = TVAStaticOffset;
 	}
 	else
 	{
-		TVAStaticOffset = 0;
-		TVBStaticOffset = 0;
-	}
+		if( TVBStaticCount < 2.0 )
+		{
+			TVBStaticCount += deltaTime;
+			TVBStaticOffset = ( int )generateRandomNumber( 0, 767 );
+			staticOn = true;
+		}
+		else
+			TVBStaticOffset = 0;
+
+		staticOffset = TVBStaticOffset;
+	}	
 
 	GLint static_LocID = glGetUniformLocation( theShaderID, "staticOffsetNumber" );
-	glUniform1i( static_LocID, TVAStaticOffset );
+	glUniform1i( static_LocID, staticOffset );
 
 	GLint staticOn_LocID = glGetUniformLocation( theShaderID, "staticOn" );
-	glUniform1i( staticOn_LocID, TVBStaticOffset );
+	glUniform1i( staticOn_LocID, staticOn );
 
 	std::vector< cGameObject* > tempVector;
 	tempVector.push_back( theScreenObject );

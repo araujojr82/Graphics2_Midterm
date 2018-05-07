@@ -333,13 +333,14 @@ void main()
 		{
 			if( staticOn == 1 )
 			{
-				//vec2 textCoords2 = vec2( staticOffsetNumber / screenWidth, staticOffsetNumber / screenHeight );
 				vec2 textCoords2 = vec2( ( fUV_X2.x / screenWidth ) + staticOffsetNumber,
 										 ( fUV_X2.y / screenHeight ) + staticOffsetNumber );
 
 				vec3 newColor = texture( fullRenderedImage2D, textCoords2 ).rgb;
 
-				fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
+				vec2 textCoords = vec2( fUV_X2.x / 0.70f, fUV_X2.y );
+				fragOut.colour.rgb = texture( fullRenderedImage2D, textCoords ).rgb;
+				//fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
 
 				fragOut.colour.rgb = fragOut.colour.rgb * 0.10f +
 									 newColor.rgb * 0.90f;
@@ -349,10 +350,8 @@ void main()
 			{
 				
 
-				vec2 textCoords2 = vec2( fUV_X2.x / 0.70f, fUV_X2.y );
-				fragOut.colour.rgb = texture( fullRenderedImage2D, textCoords2 ).rgb;
-				
-				//fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
+				vec2 textCoords = vec2( fUV_X2.x / 0.70f, fUV_X2.y );
+				fragOut.colour.rgb = texture( fullRenderedImage2D, textCoords ).rgb;
 			}
 			fragOut.colour.a = 1.0f;	
 

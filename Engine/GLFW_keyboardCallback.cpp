@@ -24,6 +24,7 @@ extern bool TVAChannel;
 extern bool TVBChannel;
 
 extern float TVAStaticCount;
+extern float TVBStaticCount;
 
 /*static*/ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods )
 {
@@ -33,15 +34,18 @@ extern float TVAStaticCount;
 
 	if( key == GLFW_KEY_TAB && action == GLFW_PRESS )
 	{
-		//TVAChannel = !TVAChannel;
-		//TVAStaticCount = 0.0f;
-
 		if( TVASelected )
+		{
 			TVAChannel = !TVAChannel;
+			TVAStaticCount = 0.0f;
+		}			
 		else
+		{
 			TVBChannel = !TVBChannel;
+			TVBStaticCount = 0.0f;
+		}
+			
 	}
-		
 
 	//if( key == GLFW_KEY_9 && action == GLFW_PRESS )
 	//{
@@ -77,20 +81,12 @@ extern float TVAStaticCount;
 		::g_theQuestionNumber = 1;
 
 		::g_pTheMouseCamera = ::g_pTheCamera1;	// SETTING IT TO DEFAULT CAMERA
-		//::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -8.0f, 2.0f, -8.0f );
-		//::g_pTheMouseCamera->Pitch = -5.0f;
-		//::g_pTheMouseCamera->Yaw = 45.0f;
-		//::g_pTheMouseCamera->updateCameraVectors();
 	}
 	if( key == GLFW_KEY_2 && action == GLFW_PRESS )
 	{
 		::g_theQuestionNumber = 2;
 		
 		::g_pTheMouseCamera = ::g_pTheCamera2;
-
-		//::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
-		//::g_pTheMouseCamera->Pitch = -10.0f;		
-		//::g_pTheMouseCamera->moveCamera();
 	}
 	if( key == GLFW_KEY_3 && action == GLFW_PRESS )
 	{
@@ -99,12 +95,6 @@ extern float TVAStaticCount;
 		::g_camera3Timer = 0.0f;
 		
 		::g_pTheMouseCamera = ::g_pTheCamera3;
-		//::g_pTheCameraDummy->overwrtiteQOrientationFromEuler( glm::vec3( 0.0f, 0.0f, 0.0f ) );
-
-		//::g_pTheMouseCamera->Target = ::g_pTheCameraDummy;
-		//::g_pTheMouseCamera->Position = ::g_pThePlayerGO->position + glm::vec3( -4.0f, 2.0f, -4.0f );
-		//::g_pTheMouseCamera->Pitch = -5.0f;
-		//::g_pTheMouseCamera->moveCamera();		
 	}
 	if( key == GLFW_KEY_4 && action == GLFW_PRESS )
 	{
@@ -114,24 +104,11 @@ extern float TVAStaticCount;
 	if( key == GLFW_KEY_5 && action == GLFW_PRESS )
 	{
 		TVASelected = true;
-		//::g_theQuestionNumber = 5;
 	}
 	if( key == GLFW_KEY_6 && action == GLFW_PRESS )
 	{
 		TVASelected = false;
-		//::g_theQuestionNumber = 6;
 	}
-
-	//if( key == GLFW_KEY_A && action == GLFW_PRESS )
-	//{
-	//	::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, 0.1f, 0.0f ) );
-	//}
-
-	//if( key == GLFW_KEY_D && action == GLFW_PRESS )
-	//{
-	//	::g_pTheCameraDummy->adjustQOrientationFormDeltaEuler( glm::vec3( 0.0f, -0.1f, 0.0f ) );
-	//}
-	
 
 	return;
 }
