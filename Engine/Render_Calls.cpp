@@ -28,11 +28,11 @@ extern cFBO g_FBO_CameraB_Pass2;
 
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
-void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO );
+void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO, cMouseCamera* pCamera );
 
 // Draws one mesh in the game object. 
 // The game object is passed to get the orientation.
-void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO );
+void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO, cMouseCamera* pCamera );
 
 
 
@@ -155,8 +155,9 @@ void window_size_callback( GLFWwindow* window, int width, int height )
 }
 
 
-void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, double deltaTime )
+void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, cMouseCamera* pCamera, double deltaTime )
 {
+	::g_pSkyBoxObject->position = pCamera->Position;
 
 	float ratio;
 	int width, height;
@@ -181,15 +182,15 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 	// Projection and view don't change per scene (maybe)
 	matProjection = glm::perspective( 0.6f,			// FOV
 									  ratio,		// Aspect ratio
-									  1.0f,		// Near (as big as possible)
-									  10000.0f );	// Far (as small as possible)
+									  1.0f,			// Near (as big as possible)
+									  1000.0f );	// Far (as small as possible)
 
 
 													// View or "camera" matrix
 	glm::mat4 matView = glm::mat4( 1.0f );	// was "v"
 
 											// Now the veiw matrix is taken right from the camera class
-	matView = ::g_pTheMouseCamera->GetViewMatrix();
+	matView = pCamera->GetViewMatrix();
 	//matView = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
 	//					   g_cameraTarget_XYZ,		// "At" or "target" 
 	//					   glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
@@ -252,7 +253,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 		cGameObject* pTheGO = vec_pGOs[index];
 
 		// This is the top level vector, so they are all "parents" 
-		DrawObject( pTheGO, NULL );
+		DrawObject( pTheGO, NULL, pCamera );
 
 	}//for ( int index = 0...
 
@@ -265,7 +266,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
-void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
+void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO, cMouseCamera* pCamera )
 {
 	if( !pTheGO )
 	{	// Shouldn't happen, but if GO pointer is invlaid, return
@@ -288,7 +289,7 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 	unsigned int numMeshes = ( unsigned int )pTheGO->vecMeshes.size();
 	for( unsigned int meshIndex = 0; meshIndex != numMeshes; meshIndex++ )
 	{
-		DrawMesh( pTheGO->vecMeshes[meshIndex], pTheGO );
+		DrawMesh( pTheGO->vecMeshes[meshIndex], pTheGO, pCamera );
 	}
 
 
@@ -311,7 +312,7 @@ namespace QnDTexureSamplerUtility
 
 // Draws one mesh in the game object. 
 // The game object is passed to get the orientation.
-void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
+void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO, cMouseCamera* pCamera )
 {
 	if( !theMesh.bIsVisible )
 	{
@@ -428,7 +429,7 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 
 	// Other uniforms:
 	GLint uniLoc_eyePosition = glGetUniformLocation( curShaderProgID, "eyePosition" );
-	glm::vec3 eye = ::g_pTheMouseCamera->Position;
+	glm::vec3 eye = pCamera->Position;
 	glUniform3f( uniLoc_eyePosition, eye.x, eye.y, eye.z );
 
 

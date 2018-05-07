@@ -16,7 +16,7 @@
 extern std::vector< cGameObject* >  g_vecGameObjects;
 extern cGameObject* g_pTheDebugSphere;
 extern cGameObject* g_pSkyBoxObject;
-extern cGameObject* g_pMirrorObject;
+extern cGameObject* g_pWallObject;
 
 cSimpleAssimpSkinnedMesh* createSkinnedMesh( std::string meshFilename )
 {
@@ -98,8 +98,8 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 	  // ======================================
 		cGameObject* pTempGO = new cGameObject();
 		pTempGO->friendlyName = "TV1";
-		pTempGO->scale = 0.1f;
-		pTempGO->position = glm::vec3( 7.0f, -6, -30.0f );	// NEXT TO THE ROVER
+		pTempGO->scale = 0.13f;
+		pTempGO->position = glm::vec3( 8.0f, -6, -30.0f );	// NEXT TO THE ROVER
 		pTempGO->textureNames[0] = "metal.bmp";
 		pTempGO->textureBlend[0] = 1.0f;
 
@@ -124,7 +124,7 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.name = "tv";
 		//meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
 		pTempGO->vecMeshes.push_back( meshInfo );
-		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+		//::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
 		::g_vecGameObjectsForTVscene.push_back( pTempGO );	// ADDING IT TO THE SCENE VECTOR
 
 	}
@@ -134,14 +134,14 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		// ======================================
 		::g_pTVScreen1 = new cGameObject();
 		::g_pTVScreen1->friendlyName = "TVScreen1";
-		::g_pTVScreen1->scale = 0.1f;
-		::g_pTVScreen1->position = glm::vec3( 7.0f, -6, -30.0f );	// SAME POSITION AS THE TV
+		::g_pTVScreen1->scale = 0.13f;
+		::g_pTVScreen1->position = glm::vec3( 8.0f, -6, -30.0f );	// SAME POSITION AS THE TV
 		::g_pTVScreen1->textureNames[0] = "tvscreen.bmp";
 		::g_pTVScreen1->textureBlend[0] = 1.0f;
 		cMesh theMesh;
 		theMesh.name = "tvscreen";
 
-		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly_xz.ply", theMesh ) )
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly_xz2.ply", theMesh ) )
 		{
 			std::cout << "Didn't load model" << std::endl;
 		}
@@ -159,7 +159,7 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.name = "tvscreen";
 		//meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "tvscreen.bmp", 1.0f ) );
 		::g_pTVScreen1->vecMeshes.push_back( meshInfo );
-		//::g_vecGameObjects.push_back( ::g_pTVScreen1 );		// Fastest way to add
+		::g_vecGameObjectsForTVscene.push_back( ::g_pTVScreen1 );	// ADDING IT TO THE SCENE VECTOR
 	}
 
 	{ // ======================================
@@ -167,9 +167,9 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 	  // ======================================
 		cGameObject* pTempGO = new cGameObject();
 		pTempGO->friendlyName = "TV1";
-		pTempGO->scale = 0.1f;
-		pTempGO->position = glm::vec3( -7.0f, -6, -30.0f );
-		pTempGO->textureNames[0] = "wood.bmp";
+		pTempGO->scale = 0.13f;
+		pTempGO->position = glm::vec3( -8.0f, -6, -30.0f );
+		pTempGO->textureNames[0] = "metal.bmp";
 		pTempGO->textureBlend[0] = 1.0f;
 
 		cMesh theMesh;
@@ -193,7 +193,7 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.name = "tv";
 		//meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "wood.bmp", 1.0f ) );
 		pTempGO->vecMeshes.push_back( meshInfo );
-		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+		//::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
 		::g_vecGameObjectsForTVscene.push_back( pTempGO );	// ADDING IT TO THE SCENE VECTOR
 
 	}
@@ -203,8 +203,8 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		// ======================================
 		::g_pTVScreen2 = new cGameObject();
 		::g_pTVScreen2->friendlyName = "TVScreen1";
-		::g_pTVScreen2->scale = 0.1f;
-		::g_pTVScreen2->position = glm::vec3( -7.0f, -6, -30.0f );	// SAME POSITION AS THE TV
+		::g_pTVScreen2->scale = 0.13f;
+		::g_pTVScreen2->position = glm::vec3( -8.0f, -6, -30.0f );	// SAME POSITION AS THE TV
 		::g_pTVScreen2->textureNames[0] = "tvscreen.bmp";
 		::g_pTVScreen2->textureBlend[0] = 1.0f;
 
@@ -229,42 +229,125 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		meshInfo.name = "tvscreen";
 		//meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "tvscreen.bmp", 1.0f ) );
 		::g_pTVScreen2->vecMeshes.push_back( meshInfo );
-		//::g_vecGameObjects.push_back( ::g_pTVScreen1 );		// Fastest way to add
+		::g_vecGameObjectsForTVscene.push_back( ::g_pTVScreen2 );	// ADDING IT TO THE SCENE VECTOR
+	}
+
+	{ // Desk
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->friendlyName = "Desk";
+		pTempGO->scale = 4.0f;
+		pTempGO->position = glm::vec3( 0.0f, -16.0f, -30.0f );	// NEXT TO THE ROVER
+		pTempGO->textureNames[0] = "wood.bmp";
+		pTempGO->textureBlend[0] = 1.0f;
+
+		cMesh theMesh;
+		theMesh.name = "desk";
+
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "desk.ply", theMesh ) )
+		{
+			std::cout << "Didn't load model" << std::endl;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
+		{
+			std::cout << "Could not load mesh into VAO" << std::endl;
+		}
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = pTempGO->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "desk";
+		pTempGO->vecMeshes.push_back( meshInfo );		
+		::g_vecGameObjectsForTVscene.push_back( pTempGO );	// ADDING IT TO THE SCENE VECTOR
 	}
 
 
-	//{ // Mirror
-	//	::g_pMirrorObject = new cGameObject();
-	//	::g_pMirrorObject->friendlyName = "Mirror";
-	//	::g_pMirrorObject->scale = 5.0f;
-	//	//::g_pMirrorObject->position = glm::vec3( 0.0f, 1.0f, 3.0f );
-	//	::g_pMirrorObject->position = glm::vec3( 10.0f, -6, -40.0f );	// NEXT TO THE ROVER
-	//	//::g_pMirrorObject->adjustQOrientationFormDeltaEuler( glm::vec3( glm::radians(90.0f), 0.0f, glm::radians( 90.0f ) ) );
+	{ // Background
+		::g_pWallObject = new cGameObject();
+		::g_pWallObject->friendlyName = "BackWall";
+		::g_pWallObject->scale = 120.0f;
+		::g_pWallObject->position = glm::vec3( 0.0f, 0.0f, -20.0f );
+		::g_pWallObject->textureNames[0] = "wallpaper.bmp";
+		::g_pWallObject->textureBlend[0] = 1.0f;
 
-	//	cMesh theMesh;
-	//	theMesh.name = "mirror";
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = ::g_pWallObject->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "wall";
+		::g_pWallObject->vecMeshes.push_back( meshInfo );
+		::g_vecGameObjectsForTVscene.push_back( ::g_pWallObject );
 
-	//	if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "mirror.ply", theMesh ) )
-	//	//if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "RetroTV.edited.screenonly.ply", theMesh ) )
-	//	{
-	//		std::cout << "Didn't load model" << std::endl;
-	//	}
-	//	// ***********************************************************************
-	//	// NOTE the TRUE so that it keeps the mesh!!!
-	//	else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
-	//	{
-	//		std::cout << "Could not load mesh into VAO" << std::endl;
-	//	}
-	//	
-	//		sMeshDrawInfo meshInfo;
-	//		meshInfo.scale = ::g_pMirrorObject->scale;
-	//		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
-	//		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
-	//		meshInfo.name = "mirror";
-	//		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo( "metal.bmp", 1.0f ) );
-	//		::g_pMirrorObject->vecMeshes.push_back( meshInfo );
-	//		//::g_vecGameObjects.push_back( ::g_pMirrorObject );		// Fastest way to add
-	//}
+		cMesh theMesh;
+		theMesh.name = "wall";
+
+		if( !pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "wall.ply", theMesh ) )
+		{
+			std::cout << "Didn't load model" << std::endl;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if( !pVAOManager->loadMeshIntoVAO( theMesh, shaderID, true ) )
+		{
+			std::cout << "Could not load mesh into VAO" << std::endl;
+		}
+	}
+
+	{ // Right Wall
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->friendlyName = "RightWall";
+		pTempGO->scale = 120.0f;
+		pTempGO->position = glm::vec3( -40.0f, 0.0f, -20.0f );
+		pTempGO->textureNames[0] = "wallpaper.bmp";
+		pTempGO->textureBlend[0] = 1.0f;
+		pTempGO->overwrtiteQOrientationFromEuler( glm::vec3( 0.0f, glm::radians( -90.0f ), 0.0f ) );
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = ::g_pWallObject->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "wall";
+		pTempGO->vecMeshes.push_back( meshInfo );
+		::g_vecGameObjectsForTVscene.push_back( pTempGO );
+	}
+
+	{ // Left Wall
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->friendlyName = "LeftWall";
+		pTempGO->scale = 120.0f;
+		pTempGO->position = glm::vec3( 40.0f, 0.0f, -20.0f );
+		pTempGO->textureNames[0] = "wallpaper.bmp";
+		pTempGO->textureBlend[0] = 1.0f;
+		pTempGO->overwrtiteQOrientationFromEuler( glm::vec3( 0.0f, glm::radians(90.0f), 0.0f ) );
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = ::g_pWallObject->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "wall";
+		pTempGO->vecMeshes.push_back( meshInfo );
+		::g_vecGameObjectsForTVscene.push_back( pTempGO );
+	}
+	
+	{ // Floor
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->friendlyName = "Floor";
+		pTempGO->scale = 8.0f;
+		pTempGO->position = glm::vec3( 0.0f, -24.0f, -50.0f );
+		pTempGO->textureNames[0] = "woodfloor.bmp";
+		pTempGO->textureBlend[0] = 1.0f;
+		pTempGO->overwrtiteQOrientationFromEuler( glm::vec3( glm::radians( 90.0f ), 0.0f, 0.0f ) );
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = ::g_pWallObject->scale;
+		meshInfo.setMeshOrientationEulerAngles( glm::vec3( 0.0f, 0.0f, 0.0f ) );
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.name = "wall";
+		pTempGO->vecMeshes.push_back( meshInfo );
+		::g_vecGameObjectsForTVscene.push_back( pTempGO );
+	}
 
 	{	// Our skybox object
 		::g_pSkyBoxObject = new cGameObject();
@@ -286,7 +369,7 @@ void LoadModelsIntoScene( int shaderID, cVAOMeshManager* pVAOManager )
 		}
 
 		sMeshDrawInfo meshInfo;
-		meshInfo.scale = 10000.0f;
+		meshInfo.scale = 999.0f;
 		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
 		meshInfo.name = theMesh.name;
 		//meshInfo.vecMeshCubeMaps.push_back( sTextureBindBlendInfo( "space", 1.0f ) );

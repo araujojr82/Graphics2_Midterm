@@ -42,6 +42,7 @@ extern cGameObject* g_pTheCamera2Dummy;
 extern cGameObject* g_pTheCamera3Dummy;
 
 extern cGameObject* g_pThePlayerGO;
+extern cGameObject* g_pSkyBoxObject;
 
 extern cModelAssetLoader* g_pModelAssetLoader;	// (ModelUtilies.cpp)
 
@@ -56,7 +57,7 @@ extern cShaderManager*			g_pShaderManager;	// (theMain.cpp)
 extern CTextureManager*			g_pTextureManager;	// (theMain.cpp)
 extern cDebugRenderer*			g_pDebugRenderer;	// (theMain.cpp)
 
-void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, double deltaTime );
+void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, cMouseCamera* pCamera, double deltaTime );
 
 extern	GLFWwindow* g_pGLFWWindow;	// In TheMain.cpp
 extern bool g_IsWindowFullScreen;	// false at start

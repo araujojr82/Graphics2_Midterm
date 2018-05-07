@@ -17,7 +17,11 @@ extern GLint g_renderID;
 
 extern bool g_outline;
 
+extern bool TVASelected;
+extern bool TVAStatus;
+extern bool TVBStatus;
 extern bool TVAChannel;
+extern bool TVBChannel;
 
 extern float TVAStaticCount;
 
@@ -29,27 +33,43 @@ extern float TVAStaticCount;
 
 	if( key == GLFW_KEY_TAB && action == GLFW_PRESS )
 	{
-		TVAChannel = !TVAChannel;
-		TVAStaticCount = 0.0f;
+		//TVAChannel = !TVAChannel;
+		//TVAStaticCount = 0.0f;
+
+		if( TVASelected )
+			TVAChannel = !TVAChannel;
+		else
+			TVBChannel = !TVBChannel;
 	}
 		
 
-	if( key == GLFW_KEY_9 && action == GLFW_PRESS )
-	{
-		::g_renderID--;
-		std::cout << "Screen Text ID: " << g_renderID << std::endl;
-	}
-		
+	//if( key == GLFW_KEY_9 && action == GLFW_PRESS )
+	//{
+	//	::g_renderID--;
+	//	std::cout << "Screen Text ID: " << g_renderID << std::endl;
+	//}
+	//	
 
-	if( key == GLFW_KEY_0 && action == GLFW_PRESS )
-	{
-		::g_renderID++;
-		std::cout << "Screen Text ID: " << g_renderID << std::endl;
-	}
+	//if( key == GLFW_KEY_0 && action == GLFW_PRESS )
+	//{
+	//	::g_renderID++;
+	//	std::cout << "Screen Text ID: " << g_renderID << std::endl;
+	//}
 
 	if( key == GLFW_KEY_ENTER && action == GLFW_PRESS )
 	{
-		::g_bIsWireframe = !::g_bIsWireframe;
+		if( isAltKeyDown( mods, true ) )
+		{
+			::g_IsWindowFullScreen = !::g_IsWindowFullScreen;
+			setWindowFullScreenOrWindowed( ::g_pGLFWWindow, ::g_IsWindowFullScreen );
+		}
+		else
+		{
+			if( TVASelected )
+				TVAStatus = !TVAStatus;
+			else
+				TVBStatus = !TVBStatus;
+		}
 	}
 	
 	if( key == GLFW_KEY_1 && action == GLFW_PRESS )
@@ -93,11 +113,13 @@ extern float TVAStaticCount;
 	}
 	if( key == GLFW_KEY_5 && action == GLFW_PRESS )
 	{
-		::g_theQuestionNumber = 5;
+		TVASelected = true;
+		//::g_theQuestionNumber = 5;
 	}
 	if( key == GLFW_KEY_6 && action == GLFW_PRESS )
 	{
-		::g_theQuestionNumber = 6;
+		TVASelected = false;
+		//::g_theQuestionNumber = 6;
 	}
 
 	//if( key == GLFW_KEY_A && action == GLFW_PRESS )

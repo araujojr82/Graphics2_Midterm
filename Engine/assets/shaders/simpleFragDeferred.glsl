@@ -321,12 +321,10 @@ void main()
 	
 		case PASS_2_FULL_SCREEN_EFFECT_PASS:	
 		{			
-
 			vec2 textCoords2 = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
 
 			fragOut.colour.rgb = texture( fullRenderedImage2D, textCoords2).rgb;
 			fragOut.colour.a = 1.0f;
-//			fragOut.colour.r = 1.0f;
 
 		}
 		break;	// end of pass PASS3
@@ -346,24 +344,15 @@ void main()
 				fragOut.colour.rgb = fragOut.colour.rgb * 0.10f +
 									 newColor.rgb * 0.90f;
 
-				////// Make it  black and white (well, "greyscale"
-				//float Y = (0.2126 * fragOut.colour.r) + 
-				//		  (0.7152 * fragOut.colour.g) + 
-				//		  (0.0722 * fragOut.colour.b);
-				//fragOut.colour.rgb = vec3(Y,Y,Y);
-
 			}
 			else
 			{
-				fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
-				//fragOut.colour.a = 1.0f;		
-				//fragOut.colour.r = 1.0f;
+				
 
-				//// Make it  black and white (well, "greyscale"
-				//float Y = (0.2126 * fragOut.colour.r) + 
-				//		  (0.7152 * fragOut.colour.g) + 
-				//		  (0.0722 * fragOut.colour.b);
-				//fragOut.colour.rgb = vec3(Y,Y,Y);
+				vec2 textCoords2 = vec2( fUV_X2.x / 0.70f, fUV_X2.y );
+				fragOut.colour.rgb = texture( fullRenderedImage2D, textCoords2 ).rgb;
+				
+				//fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
 			}
 			fragOut.colour.a = 1.0f;	
 
